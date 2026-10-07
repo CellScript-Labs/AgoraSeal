@@ -2,7 +2,11 @@
 
 Read README.md, docs/PROTOCOL.md and docs/PRODUCTION.md before changes.
 The goal is a production-usable ZK governance and treasury application on CKB,
-with CellScript enforcing settlement and payout. A native tally demonstration
+with actual CellScript source enforcing vote eligibility, proposal lifecycle,
+settlement and payout. Rust may implement proof guests, cryptographic verifiers,
+clients and test/reference models; it must not replace the application's `.cell`
+business policies. `reference/vote` is an explicit non-production comparison
+implementation, not the application's Vote Type Script. A native tally demonstration
 does not complete that goal. Keep the production evidence ledger accurate.
 
 Use official CKB sources for consensus, serialization, syscalls and deployment.

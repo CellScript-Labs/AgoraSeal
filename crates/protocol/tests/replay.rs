@@ -21,6 +21,7 @@ fn proposal() -> Proposal {
     Proposal {
         genesis: [1; 32],
         vote_code: [2; 32],
+        dao_script: [5; 32],
         duration: 3,
         quorum: 100,
         amount: 100,

@@ -11,6 +11,10 @@ case "$mode" in
   *) echo 'usage: scripts/gate.sh dev|ci|production' >&2; exit 2 ;;
 esac
 cargo fmt --all -- --check
+./scripts/build-cellscript.sh
+cargo fmt --manifest-path reference/vote/Cargo.toml -- --check
+cargo build --locked --manifest-path reference/vote/Cargo.toml --target riscv64imac-unknown-none-elf --release
+cargo clippy --locked --manifest-path reference/vote/Cargo.toml --target riscv64imac-unknown-none-elf --release -- -D warnings
 cargo check --locked --workspace --all-targets
 cargo test --locked --workspace
 cargo clippy --locked --workspace --all-targets -- -D warnings

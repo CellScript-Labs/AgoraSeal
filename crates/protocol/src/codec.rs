@@ -14,6 +14,8 @@ pub enum Choice {
 pub struct Proposal {
     pub genesis: Hash,
     pub vote_code: Hash,
+    /// Complete Nervos DAO Script hash; deployment fixes the accepted network script.
+    pub dao_script: Hash,
     pub duration: u32,
     pub quorum: u64,
     pub amount: u64,
@@ -22,7 +24,7 @@ pub struct Proposal {
 }
 
 impl Proposal {
-    pub const LEN: usize = 156;
+    pub const LEN: usize = 188;
     pub fn encode(&self) -> [u8; Self::LEN] {
         let mut bytes = [0; Self::LEN];
         bytes[..8].copy_from_slice(b"AGPROP01");
@@ -33,6 +35,7 @@ impl Proposal {
         bytes[84..92].copy_from_slice(&self.amount.to_le_bytes());
         bytes[92..124].copy_from_slice(&self.recipient);
         bytes[124..156].copy_from_slice(&self.description);
+        bytes[156..188].copy_from_slice(&self.dao_script);
         bytes
     }
 
@@ -48,6 +51,7 @@ impl Proposal {
             amount: u64::from_le_bytes(bytes[84..92].try_into().map_err(|_| Error::Encoding)?),
             recipient: bytes[92..124].try_into().map_err(|_| Error::Encoding)?,
             description: bytes[124..156].try_into().map_err(|_| Error::Encoding)?,
+            dao_script: bytes[156..188].try_into().map_err(|_| Error::Encoding)?,
         };
         if value.duration == 0 || value.quorum == 0 || value.amount == 0 {
             return Err(Error::Policy);

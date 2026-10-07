@@ -1,4 +1,4 @@
-name: Native protocol
+name: CellScript and protocol components (template, not active)
 on: [push, pull_request]
 permissions:
   contents: read
@@ -7,7 +7,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          path: agoraseal
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: CellScript-Labs/CellScript
+          ref: 35bf983db30aae80281f97e30bbce08a878d7c58
+          path: CellScript
       - name: Install pinned toolchain
         run: rustup toolchain install 1.97.1 --profile minimal --component rustfmt,clippy --target riscv64imac-unknown-none-elf
-      - name: Native and no_std verification
+      - name: CellScript, VM, native and no_std verification
+        working-directory: agoraseal
         run: ./scripts/gate.sh ci

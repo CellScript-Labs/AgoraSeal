@@ -1,0 +1,26 @@
+[package]
+name = "agoraseal-vote"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.97.1"
+publish = false
+license = "MIT"
+
+[workspace]
+
+[[bin]]
+name = "agoraseal-vote"
+path = "src/main.rs"
+test = false
+bench = false
+
+[dependencies]
+agoraseal-protocol = { path = "../../crates/protocol" }
+ckb-std = { version = "=1.1.0", default-features = false, features = ["allocator", "ckb-types"] }
+
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+overflow-checks = true
+panic = "abort"

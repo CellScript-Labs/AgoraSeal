@@ -21,7 +21,7 @@ This is CKB Script/application work. Official sources consulted:
 
 1. The proposal is uniquely identified by its complete Type Script hash and
    creation OutPoint. Its immutable creation data fixes the chain genesis,
-   immutable vote code hash (`data2`), duration, quorum, recipient full Lock
+   immutable vote code hash (`data2`), full DAO Type Script hash, duration, quorum, recipient full Lock
    Script hash, requested shannons and description digest.
 2. Let S be the proposal's creation block and E = S + duration. Ballots count
    in (S, E], in canonical block/transaction/output order. S is included in
@@ -78,6 +78,12 @@ Its result must only become chain authority through the admitted proof path.
 
 ## CellScript and treasury boundary
 
+The actual application policies must be `.cell` source: vote eligibility,
+proposal creation/transitions, settlement and treasury spending. Rust is
+reserved for the proof guest, cryptographic verifier, clients and reference
+models. A Rust business Script with a thin CellScript wrapper does not meet
+this architecture.
+
 Use a proposal state successor for settlement so the same proof cannot settle
 twice. The CellScript parent must authenticate exact verifier/program/key and
 canonical statement bytes, enforce every failure, and preserve immutable
@@ -91,6 +97,13 @@ change and fees must be accounted for, with no diversion or duplicate claims.
 The application must handle failed proposals, cancellation policy, stale input
 recovery and verifier lifecycle with explicit authorization. Ordinary funding
 allows complete testing before consensus-level treasury activation.
+
+The first implemented component is the CellScript payment Lock, described in
+[`contracts/treasury/README.md`](../contracts/treasury/README.md). It supports
+one earmarked reserve input and one exact recipient output, with an explicit
+fee ceiling. It reads an exactly typed settlement dependency. The settlement
+Type Script, unique escrow creation and full proof authentication are not yet
+implemented; synthetic settlement fixtures cannot authorize real funding.
 
 ## Bounds and decisions still requiring evidence
 

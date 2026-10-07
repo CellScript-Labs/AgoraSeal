@@ -1,0 +1,54 @@
+module agoraseal::treasury
+
+// Application policy, compiled to the actual spending Lock Script.
+// Settlement authentication is supplied by its exact Type Script identity.
+// That Type Script's ZK admission and escrow creation are not implemented yet.
+resource Escrow has store, read_ref {
+    proposal: Hash,
+    settlement_type: Hash,
+    recipient: Hash,
+    amount: u64,
+    quorum: u64,
+    max_fee: u64,
+}
+
+resource Settlement has store, read_ref {
+    proposal: Hash,
+    recipient: Hash,
+    amount: u64,
+    quorum: u64,
+    yes: u64,
+    no: u64,
+    passed: u64,
+}
+
+lock pay_passed_proposal(protected escrow: Escrow, read result: Settlement) -> bool {
+    verification
+        // This bounded first version spends one fully earmarked escrow.
+        // It cannot share a recipient output with another escrow input.
+        require ckb::cell_count(source::input(0)) == 1
+        require ckb::cell_count(source::output(0)) == 1
+        let reserve = ckb::group_input<Escrow>(0)
+        let settlement = ckb::cell_dep(0)
+        let payment = ckb::output<Escrow>(0)
+        require reserve.data_size == 120
+        require settlement.data_size == 104
+        ckb::require_cell_type_hash(source::cell_dep(0), escrow.settlement_type)
+        require escrow.settlement_type != Hash::zero()
+        require result.proposal == escrow.proposal
+        require result.recipient == escrow.recipient
+        require result.amount == escrow.amount
+        require result.quorum == escrow.quorum
+        require escrow.amount > 0
+        require escrow.quorum > 0
+        require result.passed == 1
+        require result.yes > result.no
+        require result.yes <= 18446744073709551615 - result.no
+        require result.yes + result.no >= escrow.quorum
+        ckb::require_cell_lock_hash(source::output(0), escrow.recipient)
+        require payment.capacity == escrow.amount
+        require payment.data_size == 0
+        require !ckb::cell_has_type(source::output(0))
+        require reserve.capacity >= escrow.amount
+        require reserve.capacity - escrow.amount <= escrow.max_fee
+}
