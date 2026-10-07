@@ -1,0 +1,114 @@
+# SP1 replay guest — development boundary
+
+The guest runs the shared bounded block replay algorithm. Voting eligibility,
+treasury payment and the planned proposal/settlement policies are CellScript
+application code. This Rust guest implements the off-chain proof computation;
+it does not replace those on-chain policies.
+
+SP1 SDK, guest and transitive SP1/slop crates are locked at 6.1.0. The initial
+lock resolution was seeded from the design reference's SP1 lockfile at
+`c70421b45b930325a4dda558de12fcad5f8b7918` and resolved for this workspace's own
+packages. No reference voting implementation is used by this guest.
+
+## Exact toolchain
+
+The host uses the repository's Rust 1.97.1. The guest uses the official
+Succinct Rust `succinct-1.96.0-64bit-v2` release. SP1 6.1's default Rust 1.93
+cannot compile the pinned CKB libraries (MSRV 1.95). The portable protocol
+crate declares MSRV 1.96; the CellScript compiler toolchain is unchanged.
+
+Download and extract these official Linux x86-64 assets into ignored `.local/`:
+
+| Asset | SHA-256 |
+| --- | --- |
+| [SP1 v6.1.0 cargo-prove archive](https://github.com/succinctlabs/sp1/releases/download/v6.1.0/cargo_prove_v6.1.0_linux_amd64.tar.gz) | `99f0087f581798ec510573baedcd51b97a32c6f6a1f5942612ed252e5285954b` |
+| Extracted `.local/sp1/cargo-prove` | `639e1101649a4c03b6a3e9f0e93f1dc8b884039852c48ab003a504f67d5b6b1f` |
+| [Succinct Rust 1.96 v2 archive](https://github.com/succinctlabs/rust/releases/download/succinct-1.96.0-64bit-v2/rust-toolchain-x86_64-unknown-linux-gnu.tar.gz) | `ff3afc3a6f22af93d162652972f254fcecf443ca4b2de18897312f19997fb94b` |
+| Extracted toolchain `bin/rustc` | `9b889df8d4591fbc324a6db88fe7fc8b6830821c89a99472666c04943f215511` |
+| Rust 1.97.1 `bin/cargo`, linked into the private guest toolchain | `828980723df339d62434390e9fb8ef8831036583343ae2316b7ab5646b5c1953` |
+
+The guest toolchain does not contain Cargo. Link the repository's pinned host
+Cargo into that private toolchain before registering it, avoiding rustup's
+mutable stable-Cargo fallback:
+
+```sh
+ln -s "$(rustup which --toolchain 1.97.1 cargo)" .local/sp1/toolchain-1.96.0-v2/bin/cargo
+rustup toolchain link succinct "$PWD/.local/sp1/toolchain-1.96.0-v2"
+```
+
+The gate verifies the cargo-prove, guest rustc and Cargo executable hashes and uses
+`--locked`; it never ignores rust-version checks.
+It also checks `guest.sha256` after compilation and checks the generated program
+key against `program-vkey.txt` after proof generation. Guest changes require an
+intentional repin and new evidence; these pins are not on-chain admission yet.
+
+The guest's prebuilt standard library needs GCC atomic ABI functions. The
+target-specific `ckb-std = 1.1.0` dependency provides only its `dummy-atomic`
+single-thread runtime implementation. It supplies no voting rules or CKB
+entrypoint. Those atomic operations require wrapping arithmetic, explicitly
+configured for that dependency. This compatibility choice needs to remain in
+the build/review boundary; linking alone is not proof of execution correctness.
+
+## Input and statement
+
+Input starts with the fixed 108-byte `AGINPUT1` frame: proposal Script hash,
+start hash, end hash and u32 block count. Then come exactly that many complete
+Molecule blocks. The guest checks frame size before allocation, per-block and
+total bounds, rejects extra frames, and runs the full commitment/range replay.
+It does not accept caller-provided votes or totals.
+
+Public output is exactly 277 bytes, `AGZKPV01`, defined by
+`crates/protocol/src/statement.rs`: genesis, proposal Script hash and OutPoint,
+proposal data hash, start/end hashes and heights, YES/NO totals, record count,
+record digest and canonical boolean result. On-chain header admission and the
+exact vote policy must establish canonicality and eligibility; this guest
+does not revalidate consensus or historical Script execution.
+
+## Commands and evidence levels
+
+```sh
+./scripts/zk.sh build
+./scripts/zk.sh test-guest
+./scripts/zk.sh prove-core
+```
+
+`test-guest` executes a synthetic four-block fixture and compares all public
+bytes to native replay, then sends five malformed inputs directly to the guest.
+These cover a wrong anchor, missing block, extra frame, corrupt block and
+truncated input header. Host prechecks do not substitute for these guest tests.
+SP1 6.1's execution API can return `Ok` with a failed guest exit code. The host
+therefore requires exit 0 for success, and the rejection corpus requires exit 1
+with no committed public statement. An executor/service error does not count
+as a successful guest rejection test.
+
+`prove-core` requests a real local CPU proof, verifies it, and requires rejection
+of 14 public-field substitutions, a changed program key and an empty proof. It saves the proof,
+public values and program key hash under ignored `target/guest-fixture/`.
+This is not a compressed PLONK/Groth16 proof and is not CKB-VM verification.
+No remote prover or paid service is used. Cold release builds and real proving
+are substantially heavier than the native gate.
+
+The fixture has artificial block and Script context. It is not a live-node
+voting lifecycle. Proof generation, exact CKB verifier admission, maximal cost,
+setup disposition and full hermetic release evidence must be tracked separately
+in `docs/PRODUCTION.md`; these commands do not grant production admission.
+
+Observed on 2026-10-07: the pinned guest ELF SHA-256 is
+`e0f9eb4cae3f2b73be1d50f6f47fd507a165658dfdef26418ff576f82176cdb2`.
+The four-block fixture executes 222,561 SP1 instructions and emits 277 bytes
+identical to native replay. All five direct guest rejection cases pass with
+exit 1 and empty public output. This instruction count is not CKB cycles or
+a proof-generation timing benchmark.
+
+A real local SP1 core proof for this fixture was generated and verified. The
+verifier rejected all 14 public-field substitutions, the changed program key
+and an empty proof. The pinned program key is in `program-vkey.txt`; the guest
+ELF is 293,880 bytes. The observed serialized core proof is 2,781,716 bytes with
+SHA-256 `d141299e24c9af701e9f4ac5e732668a994981a6657e535b2ea01b1b1d52c78e`.
+Proof bytes may vary across runs; that hash records this observation, not a
+deterministic proof requirement. Public output SHA-256 is
+`20477696c3bc1e1b69a051712af1f17ee6ffde27110f8d5de800a13c24464990`.
+The proving run used `SP1_WORKER_NUM_CORE_WORKERS=1` and
+`SP1_WORKER_CORE_BUFFER_SIZE=1` to limit concurrent CPU shard work. Proof bytes
+remain ignored local artifacts and can be regenerated. No compressed SNARK,
+real-node lifecycle or CKB verifier performance is implied by this core proof.

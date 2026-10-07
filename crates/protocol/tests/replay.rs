@@ -430,3 +430,84 @@ fn counted_digest_binds_ballot_direction_and_voter() {
     assert_ne!(yes, run(Choice::No, 8));
     assert_ne!(yes, run(Choice::Yes, 9));
 }
+
+#[test]
+fn guest_public_statement_is_canonical_and_context_bound() {
+    use agoraseal_protocol::{GuestInput, PublicStatement};
+    let blocks = chain_with(
+        &proposal(),
+        vec![
+            vec![ballot_tx(&[(10, 120, Choice::Yes)], 8)],
+            vec![],
+            vec![],
+        ],
+    );
+    let result = tally(&blocks).unwrap();
+    let statement = PublicStatement::from_tally(&result);
+    let bytes = statement.encode();
+    assert_eq!(PublicStatement::decode(&bytes).unwrap(), statement);
+    assert_eq!(&bytes[..8], b"AGZKPV01");
+    assert_eq!(&bytes[108..140], &hash(&result.proposal.encode()));
+    for length in 0..PublicStatement::LEN {
+        assert_eq!(
+            PublicStatement::decode(&bytes[..length]),
+            Err(Error::Encoding)
+        );
+    }
+    let mut extra = bytes.to_vec();
+    extra.push(0);
+    assert_eq!(PublicStatement::decode(&extra), Err(Error::Encoding));
+    let mut malformed = bytes;
+    malformed[276] = 2;
+    assert_eq!(PublicStatement::decode(&malformed), Err(Error::Encoding));
+    for field in 0..14 {
+        let mut changed = result.clone();
+        match field {
+            0 => changed.proposal.genesis[0] ^= 1,
+            1 => changed.proposal_script[0] ^= 1,
+            2 => changed.proposal_outpoint[0] ^= 1,
+            3 => changed.proposal.recipient[0] ^= 1,
+            4 => changed.proposal.quorum += 1,
+            5 => changed.start_hash[0] ^= 1,
+            6 => changed.end_hash[0] ^= 1,
+            7 => changed.start_number += 1,
+            8 => changed.end_number += 1,
+            9 => changed.yes += 1,
+            10 => changed.no += 1,
+            11 => changed.counted += 1,
+            12 => changed.counted_digest[0] ^= 1,
+            _ => changed.passed = !changed.passed,
+        }
+        assert_ne!(
+            PublicStatement::from_tally(&changed).encode(),
+            bytes,
+            "omitted context field {field}"
+        );
+    }
+    let input = GuestInput {
+        proposal_script: result.proposal_script,
+        start_hash: result.start_hash,
+        end_hash: result.end_hash,
+        blocks: blocks.len() as u32,
+    };
+    assert_eq!(GuestInput::decode(&input.encode()).unwrap(), input);
+    for length in 0..GuestInput::LEN {
+        assert_eq!(
+            GuestInput::decode(&input.encode()[..length]),
+            Err(Error::Encoding)
+        );
+    }
+    if let Some(path) = std::env::var_os("AGORASEAL_EXPORT_GUEST_FIXTURE") {
+        let root = std::path::PathBuf::from(path);
+        std::fs::create_dir_all(&root).unwrap();
+        std::fs::write(root.join("input.bin"), input.encode()).unwrap();
+        for (index, block) in blocks.iter().enumerate() {
+            std::fs::write(
+                root.join(format!("block-{index:06}.bin")),
+                block.data().as_slice(),
+            )
+            .unwrap();
+        }
+        std::fs::write(root.join("native-public-values.bin"), bytes).unwrap();
+    }
+}

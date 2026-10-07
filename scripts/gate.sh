@@ -11,6 +11,8 @@ case "$mode" in
   *) echo 'usage: scripts/gate.sh dev|ci|production' >&2; exit 2 ;;
 esac
 cargo fmt --all -- --check
+cargo fmt --manifest-path zk/Cargo.toml --all -- --check
+cargo clippy --locked --manifest-path zk/Cargo.toml -p agoraseal-prover --all-targets -- -D warnings
 cargo fmt --manifest-path verifiers/ckb-context/Cargo.toml -- --check
 ./scripts/build-cellscript.sh
 cargo clippy --locked --manifest-path verifiers/ckb-context/Cargo.toml --target riscv64imac-unknown-none-elf --release -- -D warnings

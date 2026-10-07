@@ -12,7 +12,9 @@ This is CKB Script/application work. Official sources consulted:
 - https://github.com/nervosnetwork/rfcs/blob/master/rfcs/0023-dao-deposit-withdraw/0023-dao-deposit-withdraw.md
 - ckb-gen-types/ckb-hash 1.1.1 and merkle-cbt 0.3.2 (Cargo.lock is authoritative).
 - XuJiandong/ckb-vote-poc at c70421b45b930325a4dda558de12fcad5f8b7918,
-  inspected as a design reference; its code is not copied into this project.
+  inspected as a design reference; its voting implementation is not copied into
+  this project. Its SP1 dependency lock was used to seed a consistent 6.1.0
+  resolution, then resolved for AgoraSeal's own packages.
 - CellScript at 35bf983db30aae80281f97e30bbce08a878d7c58, exact Groth16
   profile and accepted #22 boundary. SP1 is a separate integration, not a
   compatible replacement for that profile's 128-byte proof.

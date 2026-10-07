@@ -6,8 +6,10 @@ treasury team's optimistic tally design.
 
 **Development status: not production-ready.** The executable starting point is
 a CellScript vote Type Script, treasury payment Lock and bounded native replay of authenticated
-CKB block transaction commitments and per-deposit voting semantics. Real proof
-generation, the exact SP1/CellScript boundary, node-backed voting eligibility,
+CKB block transaction commitments and per-deposit voting semantics. The SP1
+guest/prover and canonical public statement are implemented; execution and proof
+evidence is recorded separately in [the ZK boundary](zk/README.md). The exact
+SP1/CellScript boundary, node-backed voting eligibility,
 proposal/escrow creation and release admission are
 tracked in [the production ledger](docs/PRODUCTION.md). Native replay is not a
 ZK proof or a consensus validator.
@@ -40,6 +42,10 @@ binding, and executes it in CKB-VM.
 ./scripts/gate.sh ci
 cargo run --locked -p agoraseal-cli -- replay PROPOSAL_SCRIPT_HASH START_HASH END_HASH block0.bin block1.bin
 ```
+
+The native gate checks the ZK host but does not generate a proof. The separate
+`./scripts/zk.sh test-guest` and `./scripts/zk.sh prove-core` commands require the
+pinned guest toolchain described in [zk/README.md](zk/README.md).
 
 Block files are canonical CKB Molecule blocks in chain order. Hash arguments
 are 32-byte hexadecimal values. The command checks the full transaction roots

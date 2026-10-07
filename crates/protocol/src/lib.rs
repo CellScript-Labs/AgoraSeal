@@ -5,9 +5,11 @@ extern crate alloc;
 
 mod codec;
 mod replay;
+mod statement;
 
 pub use codec::{Ballot, Choice, Hash, OutPoint, Proposal};
 pub use replay::{Limits, Replay, Tally};
+pub use statement::{GuestInput, PublicStatement};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Error {

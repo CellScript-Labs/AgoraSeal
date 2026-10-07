@@ -1,0 +1,15 @@
+[package]
+name = "agoraseal-guest"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+license.workspace = true
+
+[dependencies]
+agoraseal-protocol = { path = "../../crates/protocol" }
+sp1-zkvm = { version = "=6.1.0", features = ["lib"] }
+
+[target.'cfg(target_os = "zkvm")'.dependencies]
+# Single-thread compiler-runtime atomics only; no CKB syscalls or voting policy.
+ckb-std = { version = "=1.1.0", default-features = false, features = ["dummy-atomic"] }

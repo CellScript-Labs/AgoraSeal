@@ -2,7 +2,8 @@
 name = "agoraseal-protocol"
 version.workspace = true
 edition.workspace = true
-rust-version.workspace = true
+# The proof core also compiles under the pinned SP1 guest compiler.
+rust-version = "1.96.0"
 license.workspace = true
 publish.workspace = true
 

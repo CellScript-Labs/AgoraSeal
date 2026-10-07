@@ -8,10 +8,10 @@ security audit or a head-to-head proving benchmark.
 **Conclusion: a significant overall advantage is not established.** The
 upstream PoC already has a guest, prover path, SP1 verifier integration,
 proposal/vote contracts, SDK and devnet tooling. AgoraSeal currently has actual
-CellScript payment policy plus native replay and a Rust eligibility reference;
-its full ZK settlement path is missing. The subsequent CellScript vote component
-now also has real parent-child VM tests; it does not change the overall maturity
-or unmeasured ZK performance conclusion. CellScript's strongest prospective
+CellScript vote/payment policies, native replay and an SP1 replay guest/prover;
+its full ZK settlement path is missing. The vote component has real parent-child
+VM tests. Guest/proof evidence is tracked separately in `zk/README.md`; it does
+not change the overall maturity or unmeasured ZK performance conclusion. CellScript's strongest prospective
 benefit is explicit, inspectable application policy and linked build evidence,
 not an automatic improvement in cryptography or proving speed.
 
@@ -25,8 +25,8 @@ that CellScript is intrinsically safer or that AgoraSeal has already solved it.
 | Dimension | ckb-vote-poc at the pinned revision | AgoraSeal now / intended |
 | --- | --- | --- |
 | Application contracts | Rust proposal and vote Scripts | Actual `.cell` vote and payment policies; proposal/settlement still required |
-| ZK path | SP1 guest, prover tooling and modified PLONK verifier present | Native replay only; exact SP1 profile/admission not implemented |
-| Public statement | Proposal, Script, start/end headers, YES/NO and pass | Intended additional explicit protocol/genesis/outpoint/record commitments; not yet proved |
+| ZK path | SP1 guest, prover tooling and modified PLONK verifier present | Real local SP1 core proof verified with context/key rejection tests; compressed proof and exact on-chain SP1 admission still missing |
+| Public statement | Proposal, Script, start/end headers, YES/NO and pass | Fixed 277-byte codec adds explicit protocol/genesis/outpoint/record commitments; on-chain admission still missing |
 | Policy audit artifacts | Rust source/tests/build artifacts | `.cell` policy, structured metadata, source map, lowering record and independent artifact checker; does not prove whole-app correctness |
 | Treasury | Proposal specifies receiver/amount; funds/provider integration must be assessed separately | Isolated earmarked payout component exists; full lifecycle missing |
 | Maturity | More complete implementation and SDK/devnet surface; remains a PoC | Earlier-stage; no production or security superiority claim |
