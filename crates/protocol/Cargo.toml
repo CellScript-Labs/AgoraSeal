@@ -1,0 +1,15 @@
+[package]
+name = "agoraseal-protocol"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[dependencies]
+ckb-gen-types.workspace = true
+ckb-hash.workspace = true
+merkle-cbt.workspace = true
+
+[dev-dependencies]
+ckb-types = "=1.1.1"

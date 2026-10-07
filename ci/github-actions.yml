@@ -1,0 +1,13 @@
+name: Native protocol
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  native:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Install pinned toolchain
+        run: rustup toolchain install 1.97.1 --profile minimal --component rustfmt,clippy --target riscv64imac-unknown-none-elf
+      - name: Native and no_std verification
+        run: ./scripts/gate.sh ci

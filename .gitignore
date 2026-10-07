@@ -1,0 +1,6 @@
+/target/
+**/target/
+*.secret
+*.key
+.env
+/.local/
