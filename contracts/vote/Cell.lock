@@ -1,0 +1,16 @@
+version = 5
+schema = "cellscript-lock-v0.30-single-package-coordinate-v1"
+resolver_model = "single-package-coordinate-v1"
+
+[package]
+edition = "2026"
+name = "agoraseal-vote"
+version = "0.1.0"
+source_hash = "c506a3d199406537ff2977b1cdd9c4ed663e70d2b1fb17fa58207da2966d3e75"
+compiler_requirement = "*"
+resolver_compiler_version = "0.31.0"
+
+[root]
+manifest_digest = "sha256:8b7163853e98d393cab7401b61688fd23ef9858921e604a0ff3a084f0008f37b"
+
+[dependencies]

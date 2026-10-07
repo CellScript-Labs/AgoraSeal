@@ -9,7 +9,9 @@ security audit or a head-to-head proving benchmark.
 upstream PoC already has a guest, prover path, SP1 verifier integration,
 proposal/vote contracts, SDK and devnet tooling. AgoraSeal currently has actual
 CellScript payment policy plus native replay and a Rust eligibility reference;
-its full ZK settlement path is missing. CellScript's strongest prospective
+its full ZK settlement path is missing. The subsequent CellScript vote component
+now also has real parent-child VM tests; it does not change the overall maturity
+or unmeasured ZK performance conclusion. CellScript's strongest prospective
 benefit is explicit, inspectable application policy and linked build evidence,
 not an automatic improvement in cryptography or proving speed.
 
@@ -22,7 +24,7 @@ that CellScript is intrinsically safer or that AgoraSeal has already solved it.
 
 | Dimension | ckb-vote-poc at the pinned revision | AgoraSeal now / intended |
 | --- | --- | --- |
-| Application contracts | Rust proposal and vote Scripts | Actual `.cell` treasury payment Lock; `.cell` vote/proposal/settlement still required |
+| Application contracts | Rust proposal and vote Scripts | Actual `.cell` vote and payment policies; proposal/settlement still required |
 | ZK path | SP1 guest, prover tooling and modified PLONK verifier present | Native replay only; exact SP1 profile/admission not implemented |
 | Public statement | Proposal, Script, start/end headers, YES/NO and pass | Intended additional explicit protocol/genesis/outpoint/record commitments; not yet proved |
 | Policy audit artifacts | Rust source/tests/build artifacts | `.cell` policy, structured metadata, source map, lowering record and independent artifact checker; does not prove whole-app correctness |

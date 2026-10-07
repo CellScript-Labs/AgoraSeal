@@ -5,9 +5,9 @@ implemented in **CellScript**. AgoraSeal explores the ZK direction independently
 treasury team's optimistic tally design.
 
 **Development status: not production-ready.** The executable starting point is
-a CellScript treasury payment Lock and bounded native replay of authenticated
+a CellScript vote Type Script, treasury payment Lock and bounded native replay of authenticated
 CKB block transaction commitments and per-deposit voting semantics. Real proof
-generation, the exact SP1/CellScript boundary, CellScript voting eligibility,
+generation, the exact SP1/CellScript boundary, node-backed voting eligibility,
 proposal/escrow creation and release admission are
 tracked in [the production ledger](docs/PRODUCTION.md). Native replay is not a
 ZK proof or a consensus validator.
@@ -59,6 +59,12 @@ fixture uses an artificial Type Script: **this is component evidence, not a
 verified ZK tally or a deployable treasury**. See the
 [treasury boundary](contracts/treasury/README.md) and
 [comparison with ckb-vote-poc](docs/COMPARISON.md).
+
+The actual [vote policy](contracts/vote/src/main.cell) also compiles and executes
+in CKB-VM, including its pinned generic context adapter. DAO eligibility,
+owner authorisation, weight and snapshot comparison are all in CellScript.
+See [its ABI, bounds and evidence](contracts/vote/README.md). The Rust reference
+is not substituted for this policy. Complete ZK settlement remains pending.
 
 Rust is used for proof/crypto infrastructure, clients and test models.
 [`reference/vote`](reference/README.md) is a Rust eligibility baseline only,

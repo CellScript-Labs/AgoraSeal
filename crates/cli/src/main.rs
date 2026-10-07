@@ -20,6 +20,41 @@ fn hex(bytes: &[u8]) -> String {
 
 fn run() -> Result<(), String> {
     let args: Vec<_> = std::env::args().skip(1).collect();
+    if args.first().is_some_and(|arg| arg == "context-pin") {
+        if !(args.len() == 3 || (args.len() == 4 && args[3] == "--check")) {
+            return Err("usage: agoraseal context-pin CONTEXT_ELF VOTE_PACKAGE [--check]".into());
+        }
+        let bytes = std::fs::read(&args[1]).map_err(|error| error.to_string())?;
+        let hash = agoraseal_protocol::hash(&bytes);
+        let escaped: String = hash.iter().map(|byte| format!("\\x{byte:02x}")).collect();
+        let root = std::path::Path::new(&args[2]);
+        for (path, marker, value) in [
+            ("src/main.cell", "@CONTEXT_HASH_BYTES@", escaped),
+            ("Cell.toml", "@CONTEXT_HASH@", hex(&hash)),
+        ] {
+            let template = std::fs::read_to_string(root.join(format!("{path}.in")))
+                .map_err(|error| error.to_string())?;
+            if template.matches(marker).count() != 1 {
+                return Err(format!(
+                    "{path}: expected exactly one explicit identity marker"
+                ));
+            }
+            let content = template.replace(marker, &value);
+            if args.len() == 4 {
+                let actual =
+                    std::fs::read_to_string(root.join(path)).map_err(|error| error.to_string())?;
+                if actual != content {
+                    return Err(format!(
+                        "{path}: source/manifest does not match the built context verifier; explicit repin required"
+                    ));
+                }
+            } else {
+                std::fs::write(root.join(path), content).map_err(|error| error.to_string())?;
+            }
+        }
+        println!("context verifier hash: {}", hex(&hash));
+        return Ok(());
+    }
     if args.len() < 6 || args[0] != "replay" {
         return Err("usage: agoraseal replay PROPOSAL_SCRIPT_HASH START_HASH END_HASH block0.bin block1.bin ...".into());
     }

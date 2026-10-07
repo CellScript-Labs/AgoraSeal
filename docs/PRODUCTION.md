@@ -9,7 +9,7 @@ evidence work. Repository creation and a native tally are initial steps only.
 | --- | --- | --- |
 | Independent repository, reproducible native workspace | Public AgoraSeal repository, lockfiles, native gates | Repository published |
 | Voting policy and canonical authenticated block replay | Protocol crate and adversarial tests | Native layer only |
-| CellScript DAO eligibility and proposal lifecycle | Specification; Rust reference has isolated CKB-VM tests | CellScript implementation pending |
+| CellScript DAO eligibility and proposal lifecycle | Actual `.cell` vote policy, exact context adapter, parent-child VM tests (normal/bound/reclaim + 19 negative cases) | Vote component implemented; proposal creation/lifecycle pending |
 | Real ZK guest/prover with exact program identity | SP1 candidate under evaluation | Not implemented |
 | Exact verifier executed in CKB-VM | None | Not implemented |
 | CellScript source/ELF/checker settlement binding | Integration contract specified | Not implemented |
@@ -25,7 +25,7 @@ evidence work. Repository creation and a native tally are initial steps only.
 | GitHub push verified against local commit | Initial `d0032d7b7193f75613e5d1176385030c1e3c60ee` verified | Initial publication complete |
 
 Next implementation sequence: authenticated native protocol and mutation corpus;
-actual CellScript vote/proposal scripts and CKB-VM eligibility tests; real SP1 guest/prover
+CellScript proposal creation/lifecycle and node-backed eligibility tests; real SP1 guest/prover
 evaluation; typed CellScript settlement integration; treasury and SDK lifecycle;
 full node/adversarial/resource/reproducibility work; production admission.
 Adapt the sequence to measured blockers while retaining every outcome above.

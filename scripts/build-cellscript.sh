@@ -15,10 +15,18 @@ if [[ -n "$(git -C "$compiler_root" ls-files --others --exclude-standard -- src 
 fi
 cargo build --locked --manifest-path "$compiler_root/Cargo.toml" -p cellscript --bin cellc
 compiler="$compiler_root/target/debug/cellc"
+cargo build --locked --manifest-path verifiers/ckb-context/Cargo.toml --target riscv64imac-unknown-none-elf --release
+cargo run --locked -p agoraseal-cli -- context-pin \
+  verifiers/ckb-context/target/riscv64imac-unknown-none-elf/release/agoraseal-ckb-context \
+  contracts/vote --check
 mkdir -p target/cellscript
 "$compiler" contracts/treasury/treasury.cell --target riscv64-elf --target-profile ckb \
   --entry-lock pay_passed_proposal --primitive-strict 0.16 -o target/cellscript/treasury.elf
 # This checker flag admits an artifact boundary, not the AgoraSeal application.
 "$compiler" verify-artifact target/cellscript/treasury.elf --verify-sources \
   --expect-target-profile ckb --production --json > target/cellscript/treasury.checker.json
+"$compiler" contracts/vote --target riscv64-elf --target-profile ckb \
+  --entry-action cast --primitive-strict 0.16 -o target/cellscript/vote.elf
+"$compiler" verify-artifact target/cellscript/vote.elf --verify-sources \
+  --expect-target-profile ckb --production --json > target/cellscript/vote.checker.json
 printf '%s\n' "$compiler_pin" > target/cellscript/compiler-commit.txt
