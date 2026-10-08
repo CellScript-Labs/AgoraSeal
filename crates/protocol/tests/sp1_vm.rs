@@ -224,10 +224,14 @@ fn cellscript_binding_rejects_wrong_verifier_hash_packet_and_statement() {
 }
 
 #[test]
-#[ignore = "requires real locally generated PLONK proof; scripts/zk.sh verify-ckb"]
 fn real_plonk_proof_and_context_substitutions_execute_in_ckb_vm() {
-    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../target/guest-fixture");
-    let report = root.join("ckb-proof-binding.toml");
+    let repo = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
+    let root = std::env::var_os("AGORASEAL_PROOF_FIXTURE")
+        .map(std::path::PathBuf::from)
+        .unwrap_or_else(|| repo.join("tests/fixtures/sp1-plonk"));
+    let reports = repo.join("target/guest-fixture");
+    std::fs::create_dir_all(&reports).unwrap();
+    let report = reports.join("ckb-proof-binding.toml");
     match std::fs::remove_file(&report) {
         Ok(()) => {}
         Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
@@ -242,6 +246,10 @@ fn real_plonk_proof_and_context_substitutions_execute_in_ckb_vm() {
     let cycles = context
         .verify_tx(&tx, MAX_CYCLES)
         .expect("real PLONK proof through CellScript parent");
+    assert!(
+        cycles <= 70_000_000,
+        "valid proof component cost regression"
+    );
     println!("CellScript + SP1 PLONK valid transaction CKB-VM cycles: {cycles}");
     for offset in [8, 40, 72, 108, 140, 172, 204, 212, 220, 228, 236, 244, 276] {
         let mut changed = public.clone();
@@ -264,12 +272,16 @@ fn real_plonk_proof_and_context_substitutions_execute_in_ckb_vm() {
     let (invalid_context, invalid_tx) =
         fixture(&proof, &late_invalid, &late_invalid, Mutation::None);
     let late_invalid_budget = minimum_rejection_budget(&invalid_context, &invalid_tx);
+    assert!(
+        late_invalid_budget <= 135_000_000,
+        "late-invalid proof component cost regression"
+    );
     println!(
         "Changed YES total: minimum transaction budget for explicit rejection = {late_invalid_budget} cycles"
     );
     let digest =
         |bytes: &[u8]| String::from_utf8(hex(&agoraseal_protocol::hash(bytes)).to_vec()).unwrap();
-    let parent = std::fs::read(root.join("../cellscript/proof-binding.elf")).unwrap();
+    let parent = std::fs::read(repo.join("target/cellscript/proof-binding.elf")).unwrap();
     std::fs::write(
         report,
         format!(

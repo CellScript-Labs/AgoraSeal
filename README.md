@@ -1,8 +1,9 @@
 # AgoraSeal
 
-**WIP paused on 2026-10-08 at the user's request.** See the English
-[handoff](docs/HANDOFF.md) for the exact implementation state, validation,
-PLONK memory-pressure interruption and prerequisites for resuming.
+**Development resumed on 2026-10-08 at the user's request.** The English
+[handoff](docs/HANDOFF.md) records the previous WIP state, validation,
+PLONK memory-pressure interruption and prerequisites for resuming. Current
+acceptance evidence remains in [the production ledger](docs/PRODUCTION.md).
 
 ZK voting settlement and treasury execution on CKB, with application policies
 implemented in **CellScript**. AgoraSeal explores the ZK direction independently of the Nervos
@@ -10,10 +11,11 @@ treasury team's optimistic tally design.
 
 **Development status: not production-ready.** The executable starting point is
 a CellScript vote Type Script, treasury payment Lock and bounded native replay of authenticated
-CKB block transaction commitments and per-deposit voting semantics. The SP1
-guest/prover and canonical public statement are implemented; execution and proof
-evidence is recorded separately in [the ZK boundary](zk/README.md). The exact
-SP1/CellScript boundary, node-backed voting eligibility,
+CKB block transaction commitments and per-deposit voting semantics. A real
+release-circuit PLONK proof passes the actual CellScript statement-binding
+parent and pinned CKB-VM verifier, with cryptographic and recovery mutations
+in the normal gate. See [the component evidence](docs/evidence/PLONK-2026-10-08.md).
+Node-backed voting eligibility,
 proposal/escrow creation and release admission are
 tracked in [the production ledger](docs/PRODUCTION.md). Native replay is not a
 ZK proof or a consensus validator.
@@ -26,9 +28,10 @@ ballot for a deposit wins; withdrawing that deposit invalidates its ballot.
 Deposits must predate the proposal, enforced by the vote Type Script. The prover
 must process every transaction in the exact anchored window, including spends.
 
-The ZK guest seals the tally. CellScript settlement binds that result to the
-proposal and CKB chain context. A separate treasury policy enforces one-time
-payment to the committed recipient. Funds can come from ordinary pre-funded
+The ZK guest seals the tally. The implemented CellScript parent binds its public
+bytes to the successor Cell. Full settlement must additionally bind the proposal
+and CKB chain context, then authorize a single-use treasury payment. Those
+lifecycle policies remain pending. Funds can come from ordinary pre-funded
 Cells; integration with secondary issuance requires a separately activated
 CKB treasury provider. See [the protocol](docs/PROTOCOL.md).
 
@@ -47,7 +50,8 @@ binding, and executes it in CKB-VM.
 cargo run --locked -p agoraseal-cli -- replay PROPOSAL_SCRIPT_HASH START_HASH END_HASH block0.bin block1.bin
 ```
 
-The native gate checks the ZK host but does not generate a proof. The separate
+The gate verifies the committed real-proof fixture and its CKB/recovery attacks;
+it does not generate a new proof. The separate
 `./scripts/zk.sh test-guest` and `./scripts/zk.sh prove-core` commands require the
 pinned guest toolchain described in [zk/README.md](zk/README.md).
 

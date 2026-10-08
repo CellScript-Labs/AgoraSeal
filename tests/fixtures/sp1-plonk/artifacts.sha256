@@ -1,0 +1,9 @@
+de3d7a3afa61eb59faab7ee651eb7c4e9916a3c25103f245c6bef25957c5a8b5  tests/fixtures/sp1-plonk/block-000000.bin
+d805ee329946ca3e51e6711aa991ad7b8e22c765b9cc56a5d2a64feec57bc770  tests/fixtures/sp1-plonk/block-000001.bin
+b05df7d35313c215985a0fd6c1d3be98820947a4ac4c4f888747b09c3605abb9  tests/fixtures/sp1-plonk/block-000002.bin
+14730ddb908dba6668e3ba7c0b4db336d4fb93729c3c903859634e3f4fba4ce0  tests/fixtures/sp1-plonk/block-000003.bin
+d356ab8a9cc6202020e673929e7da44ea79c82342a9c21c68d85a387d5a26a2e  tests/fixtures/sp1-plonk/input.bin
+92cc9a3b525d0f1d7da2dcd678ec3f9883540cd91f11e9a90c44eae9b86032e8  tests/fixtures/sp1-plonk/proof-plonk-bundle.bin
+c0985e25755f95a1980758aca61b8ce3b09093f579661d6693d51a371277b832  tests/fixtures/sp1-plonk/proof-plonk.bin
+20477696c3bc1e1b69a051712af1f17ee6ffde27110f8d5de800a13c24464990  tests/fixtures/sp1-plonk/public-values.bin
+e81a88bfa8f54798d0f44f5746135ac914ded744304e22495ac2a7ed3b7ac4f8  tests/fixtures/sp1-plonk/program-vkey.txt

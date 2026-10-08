@@ -15,8 +15,12 @@ if [[ -n "$(git -C "$compiler_root" ls-files --others --exclude-standard -- src 
 fi
 cargo build --locked --manifest-path "$compiler_root/Cargo.toml" -p cellscript --bin cellc
 compiler="$compiler_root/target/debug/cellc"
-cargo build --locked --manifest-path verifiers/ckb-context/Cargo.toml --target riscv64imac-unknown-none-elf --release
-cargo build --locked --manifest-path verifiers/sp1-plonk/Cargo.toml --target riscv64imac-unknown-none-elf --release
+if test "$(uname -s)" = Darwin; then
+  ./scripts/canonical-build.sh ckb
+else
+  cargo build --locked --manifest-path verifiers/ckb-context/Cargo.toml --target riscv64imac-unknown-none-elf --release
+  cargo build --locked --manifest-path verifiers/sp1-plonk/Cargo.toml --target riscv64imac-unknown-none-elf --release
+fi
 cargo run --locked -p agoraseal-cli -- context-pin \
   verifiers/ckb-context/target/riscv64imac-unknown-none-elf/release/agoraseal-ckb-context \
   contracts/vote --check

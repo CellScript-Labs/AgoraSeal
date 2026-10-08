@@ -33,11 +33,13 @@ followed by the package's `cellc lock` and fresh evidence. Normal builds use
 Run `./scripts/build-cellscript.sh` to build and independently check the parent.
 The regular `sp1_vm` integration tests exercise malformed ABI, wrong verifier,
 wrong statement, missing/truncated packet and oversized witness rejection.
-`./scripts/zk.sh verify-ckb` additionally requires a real generated proof and
-executes the positive transaction plus cryptographic substitutions. The ignored
-heavy test must not be counted as passed by a normal native gate.
+The regular gate also executes a committed real release-circuit PLONK proof
+and 20 cryptographic substitutions; this test is no longer ignored.
+`./scripts/zk.sh verify-ckb` selects a newly generated proof under
+`target/guest-fixture` instead. See [the synthetic fixture](../../tests/fixtures/sp1-plonk/README.md)
+and [the observed evidence](../../docs/evidence/PLONK-2026-10-08.md).
 
-The heavy test writes `target/guest-fixture/ckb-proof-binding.toml` only after
+The real-proof test writes `target/guest-fixture/ckb-proof-binding.toml` only after
 all cases pass, invalidating any prior report at the start. It records ELF,
 proof and public hashes, serialized sizes, valid transaction cycles and the
 minimum transaction budget that reaches explicit rejection for a changed YES

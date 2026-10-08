@@ -1,0 +1,16 @@
+FROM rust@sha256:0e2bcaef56d041a486784e54104a81aebe0da44bd03019bd70bc0401e42e4a97
+
+# Development build environment. Artifact/key checks remain authoritative;
+# this apt installation does not claim hermetic supply-chain closure.
+ENV RUSTUP_TOOLCHAIN=1.97.1
+RUN sed -i 's|http://deb.debian.org|https://deb.debian.org|g' /etc/apt/sources.list.d/debian.sources \
+    && apt-get -o Acquire::Retries=5 update \
+    && apt-get -o Acquire::Retries=5 install -y --no-install-recommends clang-19=1:19.1.7-3~deb12u1 \
+    && rm -rf /var/lib/apt/lists/*
+RUN rustup target add --toolchain 1.97.1 riscv64imac-unknown-none-elf
+RUN test "$(sha256sum "$(rustup which cargo)" | cut -d ' ' -f 1)" = \
+    828980723df339d62434390e9fb8ef8831036583343ae2316b7ab5646b5c1953
+RUN test "$(sha256sum /usr/bin/clang-19 | cut -d ' ' -f 1)" = \
+    4c8b517baf7f83492fe97b7c7318b3389936b1f51d61cb6266fe2a3fe99801ca
+ENV CLANG=/usr/bin/clang-19
+ENV AR_riscv64imac_unknown_none_elf=/usr/bin/ar

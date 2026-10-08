@@ -13,9 +13,12 @@ fn run(root: &Path) -> std::process::Output {
 }
 
 #[test]
-#[ignore = "requires a real persisted PLONK proof; scripts/zk.sh verify-plonk"]
 fn stored_proof_revalidation_rejects_stale_and_partial_artifacts() {
-    let source = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../target/guest-fixture");
+    let source = std::env::var_os("AGORASEAL_PROOF_FIXTURE")
+        .map(std::path::PathBuf::from)
+        .unwrap_or_else(|| {
+            Path::new(env!("CARGO_MANIFEST_DIR")).join("../../tests/fixtures/sp1-plonk")
+        });
     let files = [
         "input.bin",
         "block-000000.bin",

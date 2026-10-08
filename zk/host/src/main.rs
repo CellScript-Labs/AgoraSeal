@@ -22,9 +22,9 @@ async fn main() -> Result<()> {
         args.len() == 3
             && matches!(
                 args[0].as_str(),
-                "execute" | "test-guest" | "prove-core" | "prove-plonk"
+                "execute" | "test-guest" | "inspect-guest" | "prove-core" | "prove-plonk"
             ),
-        "usage: agoraseal-prover execute|test-guest|prove-core|prove-plonk GUEST_ELF INPUT_DIRECTORY"
+        "usage: agoraseal-prover execute|test-guest|inspect-guest|prove-core|prove-plonk GUEST_ELF INPUT_DIRECTORY"
     );
     let plonk = args[0] == "prove-plonk";
     ensure!(
@@ -40,6 +40,17 @@ async fn main() -> Result<()> {
     let elf = Elf::from(bounded_file(Path::new(&args[1]), 32 * 1024 * 1024)?);
     println!("initializing local SP1 CPU prover");
     let client = ProverClient::builder().cpu().build().await;
+    println!("setting up guest proving key");
+    let pk = client.setup(elf.clone()).await?;
+    let key = pk.verifying_key().bytes32();
+    println!("guest program key: {key}");
+    ensure!(
+        key == include_str!("../../program-vkey.txt").trim(),
+        "guest program key differs from compiled pin"
+    );
+    if args[0] == "inspect-guest" {
+        return Ok(());
+    }
     println!("executing bounded block replay guest");
     let (public, report) = client.execute(elf.clone(), stdin(&frames)).await?;
     ensure!(
@@ -88,8 +99,6 @@ async fn main() -> Result<()> {
         println!("five direct guest rejection cases passed");
     }
     if args[0] == "prove-core" || plonk {
-        println!("setting up guest proving key");
-        let pk = client.setup(elf).await?;
         println!(
             "generating real SP1 {} proof on local CPU",
             if plonk { "PLONK" } else { "core" }

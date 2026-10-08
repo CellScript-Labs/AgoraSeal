@@ -17,7 +17,8 @@ Succinct Rust `succinct-1.96.0-64bit-v2` release. SP1 6.1's default Rust 1.93
 cannot compile the pinned CKB libraries (MSRV 1.95). The portable protocol
 crate declares MSRV 1.96; the CellScript compiler toolchain is unchanged.
 
-Download and extract these official Linux x86-64 assets into ignored `.local/`:
+The admitted guest is built with Linux x86-64 tools. Download and extract these
+official assets into ignored `.local/` for a native Linux build:
 
 | Asset | SHA-256 |
 | --- | --- |
@@ -36,10 +37,44 @@ ln -s "$(rustup which --toolchain 1.97.1 cargo)" .local/sp1/toolchain-1.96.0-v2/
 rustup toolchain link succinct "$PWD/.local/sp1/toolchain-1.96.0-v2"
 ```
 
+On Apple Silicon, the proof script builds the guest and CKB child verifiers in
+a local Linux/amd64 Docker environment. It uses the same Linux tool hashes,
+guest ELF hash, program key and CKB verifier pins. The host SDK/prover still
+runs natively on macOS, outside Docker's memory allocation. Docker Desktop and
+Homebrew LLVM are required for the development gate; native clippy uses real
+LLVM clang/ar rather than Apple's incompatible RISC-V tools.
+
+`./scripts/install-canonical-guest.sh` downloads and verifies the Linux guest
+tools under `.local/sp1/linux`; `./scripts/canonical-build.sh guest` runs them
+inside Docker. The script registers `succinct` only in the repository-local
+container tool directory. It does not replace the user's normal toolchain.
+The Docker base is pinned in `docker/Dockerfile.canonical`; Rust Cargo must
+also match the Linux executable hash above. Apt provisioning is development
+infrastructure, not a claim of hermetic release closure. Existing complete
+Cargo registry/Git caches are mounted read-only, and artifact compilation uses
+`--locked --offline`; missing cached dependencies fail explicitly.
+The guest embeds panic source locations. The container therefore reproduces
+the original `/home/arthur/RustRoverProjects/AgoraSeal` source root and
+`/home/arthur/.cargo` dependency root. Using `/workspace` changes both the ELF
+and program key even with the same pinned Rust executables.
+
+Observed on 2026-10-08: a native macOS guest build produced SHA-256
+`25fe68c2209c7d371403f47ed5e37f9477b438228c767e1075f9d0ce4f21c145`
+and program key
+`0x0069767b4a8878aecf36d142bd997b68a94a3ff4a4c1a6f6e92c49caeb3ba5ff`.
+Both were rejected against the original pins. That build is not admitted.
+Native macOS child ELFs also differ; a Linux rebuild reproduced the existing
+CKB context adapter's exact `5739d9d4...` data hash without repinning it.
+Using Linux clang 19.1.7 also reproduced the SP1 child ELF SHA-256
+`c216a687a84dbda2e9dcb3b6b7b347743d7551e8b92922d92e6b0348e9714cbe`.
+Clang 14 emits different ELF symbol metadata; the admitted build uses clang 19.
+The guest rebuilt at the original container paths reproduces its complete
+`e0f9eb4c...` ELF hash and original `0x00e6a250...` program key.
+
 The gate verifies the cargo-prove, guest rustc and Cargo executable hashes and uses
 `--locked`; it never ignores rust-version checks.
-It also checks `guest.sha256` after compilation and checks the generated program
-key against `program-vkey.txt` after proof generation. Guest changes require an
+It also checks `guest.sha256` after compilation and checks the program
+key against `program-vkey.txt` before execution or proof generation. Guest changes require an
 intentional repin and new evidence; these pins are not on-chain admission yet.
 
 The guest's prebuilt standard library needs GCC atomic ABI functions. The
@@ -69,10 +104,12 @@ does not revalidate consensus or historical Script execution.
 ```sh
 ./scripts/zk.sh build
 ./scripts/zk.sh test-guest
+./scripts/zk.sh inspect-guest
 ./scripts/zk.sh prove-core
 ./scripts/zk.sh prove-plonk
 ./scripts/zk.sh verify-plonk
 ./scripts/zk.sh verify-ckb
+./scripts/zk.sh verify-circuits
 ```
 
 `test-guest` executes a synthetic four-block fixture and compares all public
@@ -166,3 +203,18 @@ key and a different input anchor. The executable accepts an arbitrary input
 directory as `agoraseal-verify-plonk INPUT_DIRECTORY`; the script uses the
 development fixture directory. This recovers verification of a completed
 artifact, not a checkpoint of an unfinished recursive proving computation.
+
+## Completed 2026-10-08 component acceptance
+
+A real release-circuit PLONK proof was generated locally and verified by the
+SDK, standalone verifier and actual CellScript/CKB parent-child transaction.
+All original guest/key/verifier pins were reproduced without repinning.
+The 964-byte proof, synthetic block inputs and public bytes are committed under
+`tests/fixtures/sp1-plonk`; normal gates verify this fixture and run real-proof
+substitution, late-invalid cycle and persisted-artifact recovery tests.
+The real-proof tests are no longer ignored. Fresh proving still writes ignored
+`target/guest-fixture` artifacts, selected by `verify-plonk`/`verify-ckb`.
+
+See [the observation and resource limits](../docs/evidence/PLONK-2026-10-08.md).
+Proposal/chain/treasury admission, unfinished-computation checkpointing,
+maximal workloads, security review and complete release closure remain pending.

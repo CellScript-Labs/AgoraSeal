@@ -41,6 +41,11 @@ Tests must distinguish that rejection from a VM infrastructure error or cycle
 exhaustion. The current 3-billion-cycle test ceiling is a development limit,
 not a measured production budget or a guarantee about maximum invalid cost.
 
+On 2026-10-08, a real release-circuit PLONK proof passed the generated CellScript
+parent and this exact CKB verifier. Twenty proof/public/length substitutions
+rejected. The committed synthetic fixture now runs in the normal gate; see
+[the evidence and cost boundary](../../docs/evidence/PLONK-2026-10-08.md).
+
 `./scripts/gate.sh ci` rebuilds this verifier offline with a fresh target and
 different source directory, then compares the entire ELF byte-for-byte. The
 same host toolchain and dependency cache are reused; this is a source-root

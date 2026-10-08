@@ -12,12 +12,12 @@ before a final release comparison and explicitly identify the compared revision.
 | --- | --- | --- |
 | Complete CellScript application | Real `.cell` proposal creation, voting, settlement, failure handling and payout; each transition exercised in CKB-VM | Proposal/settlement and full lifecycle missing |
 | Governance admission | Exact chain/DAO/vote/guest/verifier identities; unique proposal and reserve creation; bounded duration/amount/quorum; no TODO admission paths | Creation and deployment admission missing |
-| Proof soundness integration | Real release-circuit SNARK; exact codec/key/root/exit-code checks; wrong proof/key/context and malformed encodings rejected by actual CKB verifier | Core proof exists; SNARK/CKB boundary pending |
+| Proof soundness integration | Real release-circuit SNARK; exact codec/key/root/exit-code checks; wrong proof/key/context and malformed encodings rejected by actual CKB verifier | Real PLONK/CKB binding component passes; proposal/chain admission missing |
 | History and eligibility | Full canonical anchored window; creation-header association; snapshot/deposit-spend/replacement/retraction tests; real DAO deposits and signatures | Native and isolated VM evidence only |
 | Treasury safety | Single-use settlement/payment, reserve conservation, fees, failed proposal recovery, no arbitrary `passed` dependencies, replay and concurrent-spend rejection | Isolated payout component only |
 | Wallet and SDK | Typed transaction builders, supported wallet signing, dependency/witness ordering, fee/capacity estimation, local preflight and clear error mapping | Native replay/prover CLI only |
-| Operational recovery | Reorg, stale inputs, timeout, interrupted proving, retry idempotency and artifact recovery tests | Not implemented |
-| Prover operations | Bounded input/resource controls, reproducible guest identity, local proving, resumable artifacts and explicit remote-prover trust/cost if ever used | Bounded guest and local core proof exist; recovery/SNARK path incomplete |
+| Operational recovery | Reorg, stale inputs, timeout, interrupted proving, retry idempotency and artifact recovery tests | Completed-proof recovery passes; chain and interrupted-computation recovery missing |
+| Prover operations | Bounded input/resource controls, reproducible guest identity, local proving, resumable artifacts and explicit remote-prover trust/cost if ever used | Real local PLONK and completed-artifact recovery pass; unfinished computations have no checkpoint |
 | Adversarial coverage | Native, guest, CKB-VM and node corpus; fuzz/property coverage where useful; real cryptographic failures and late-invalid costs | Component corpus only |
 | Performance and cost | Matched semantics/data/hardware: proving time and peak memory, valid/late-invalid VM cycles, proof/tx/ELF sizes, fees, ballot occupancy; regression budgets | No matched benchmark; component observations only |
 | Build and supply chain | Exact compiler, guest, adapter, dependencies, Go/circuit artifacts and keys; clean-room rebuild comparison; artifact provenance | Partial pins; full clean-room closure missing |

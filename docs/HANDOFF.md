@@ -1,5 +1,12 @@
 # WIP handoff — paused on 2026-10-08
 
+Historical stop-state record: the user explicitly resumed work on 2026-10-08.
+The pause instruction below describes the earlier handoff, not a new pause.
+See `PRODUCTION.md` for current acceptance evidence.
+The resumed run generated and verified the real PLONK/CKB binding component;
+the earlier missing-proof result below is historical. See
+[the 2026-10-08 observation](evidence/PLONK-2026-10-08.md).
+
 ## Stop state and user instruction
 
 The user explicitly requested: pause all work, push a WIP commit, and write an
