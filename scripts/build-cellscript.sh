@@ -16,9 +16,13 @@ fi
 cargo build --locked --manifest-path "$compiler_root/Cargo.toml" -p cellscript --bin cellc
 compiler="$compiler_root/target/debug/cellc"
 cargo build --locked --manifest-path verifiers/ckb-context/Cargo.toml --target riscv64imac-unknown-none-elf --release
+cargo build --locked --manifest-path verifiers/sp1-plonk/Cargo.toml --target riscv64imac-unknown-none-elf --release
 cargo run --locked -p agoraseal-cli -- context-pin \
   verifiers/ckb-context/target/riscv64imac-unknown-none-elf/release/agoraseal-ckb-context \
   contracts/vote --check
+cargo run --locked -p agoraseal-cli -- verifier-pin \
+  verifiers/sp1-plonk/target/riscv64imac-unknown-none-elf/release/agoraseal-sp1-plonk \
+  contracts/proof-binding --check
 mkdir -p target/cellscript
 "$compiler" contracts/treasury/treasury.cell --target riscv64-elf --target-profile ckb \
   --entry-lock pay_passed_proposal --primitive-strict 0.16 -o target/cellscript/treasury.elf
@@ -29,4 +33,8 @@ mkdir -p target/cellscript
   --entry-action cast --primitive-strict 0.16 -o target/cellscript/vote.elf
 "$compiler" verify-artifact target/cellscript/vote.elf --verify-sources \
   --expect-target-profile ckb --production --json > target/cellscript/vote.checker.json
+"$compiler" contracts/proof-binding --target riscv64-elf --target-profile ckb \
+  --entry-action verify --primitive-strict 0.16 -o target/cellscript/proof-binding.elf
+"$compiler" verify-artifact target/cellscript/proof-binding.elf --verify-sources \
+  --expect-target-profile ckb --production --json > target/cellscript/proof-binding.checker.json
 printf '%s\n' "$compiler_pin" > target/cellscript/compiler-commit.txt

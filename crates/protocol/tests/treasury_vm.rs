@@ -208,7 +208,7 @@ fn cellscript_rejects_payout_substitutions() {
             _ => 5,
         };
         assert!(
-            format!("{error:?}").contains(&format!("error code {expected}")),
+            format!("{error:?}").contains(&format!("error code {expected} on page")),
             "{mutation:?}: {error:?}"
         );
     }

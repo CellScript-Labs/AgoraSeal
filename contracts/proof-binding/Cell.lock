@@ -1,0 +1,16 @@
+version = 5
+schema = "cellscript-lock-v0.30-single-package-coordinate-v1"
+resolver_model = "single-package-coordinate-v1"
+
+[package]
+edition = "2026"
+name = "agoraseal-proof-binding"
+version = "0.1.0"
+source_hash = "d2a0b64b27f35d93907b099fe5d3776d793620306bd047fc343ae5ce082bc196"
+compiler_requirement = "*"
+resolver_compiler_version = "0.31.0"
+
+[root]
+manifest_digest = "sha256:08e7260235a2475945a6a282b1beeda6f18e23ae5de3989c3f3c57938d7092f0"
+
+[dependencies]

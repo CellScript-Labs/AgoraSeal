@@ -323,7 +323,7 @@ fn eligibility_substitutions_reach_exact_rejection_codes() {
             _ => 5,
         };
         assert!(
-            text.contains(&format!("error code {expected}")),
+            text.contains(&format!("error code {expected} on page")),
             "{mutation:?}: {text}"
         );
     }

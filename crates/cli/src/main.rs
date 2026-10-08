@@ -20,17 +20,25 @@ fn hex(bytes: &[u8]) -> String {
 
 fn run() -> Result<(), String> {
     let args: Vec<_> = std::env::args().skip(1).collect();
-    if args.first().is_some_and(|arg| arg == "context-pin") {
+    if args
+        .first()
+        .is_some_and(|arg| arg == "context-pin" || arg == "verifier-pin")
+    {
         if !(args.len() == 3 || (args.len() == 4 && args[3] == "--check")) {
-            return Err("usage: agoraseal context-pin CONTEXT_ELF VOTE_PACKAGE [--check]".into());
+            return Err("usage: agoraseal context-pin|verifier-pin VERIFIER_ELF CELLSCRIPT_PACKAGE [--check]".into());
         }
         let bytes = std::fs::read(&args[1]).map_err(|error| error.to_string())?;
         let hash = agoraseal_protocol::hash(&bytes);
         let escaped: String = hash.iter().map(|byte| format!("\\x{byte:02x}")).collect();
         let root = std::path::Path::new(&args[2]);
+        let (bytes_marker, hash_marker) = if args[0] == "context-pin" {
+            ("@CONTEXT_HASH_BYTES@", "@CONTEXT_HASH@")
+        } else {
+            ("@VERIFIER_HASH_BYTES@", "@VERIFIER_HASH@")
+        };
         for (path, marker, value) in [
-            ("src/main.cell", "@CONTEXT_HASH_BYTES@", escaped),
-            ("Cell.toml", "@CONTEXT_HASH@", hex(&hash)),
+            ("src/main.cell", bytes_marker, escaped),
+            ("Cell.toml", hash_marker, hex(&hash)),
         ] {
             let template = std::fs::read_to_string(root.join(format!("{path}.in")))
                 .map_err(|error| error.to_string())?;
@@ -52,7 +60,7 @@ fn run() -> Result<(), String> {
                 std::fs::write(root.join(path), content).map_err(|error| error.to_string())?;
             }
         }
-        println!("context verifier hash: {}", hex(&hash));
+        println!("verifier data hash: {}", hex(&hash));
         return Ok(());
     }
     if args.len() < 6 || args[0] != "replay" {

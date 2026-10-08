@@ -15,3 +15,4 @@ merkle-cbt.workspace = true
 [dev-dependencies]
 ckb-types = "=1.1.1"
 ckb-testtool = "=1.1.1"
+ckb-vm = { version = "=0.24.14", features = ["asm", "detect-asm"] }

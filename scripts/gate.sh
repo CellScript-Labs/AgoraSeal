@@ -14,6 +14,8 @@ cargo fmt --all -- --check
 cargo fmt --manifest-path zk/Cargo.toml --all -- --check
 cargo clippy --locked --manifest-path zk/Cargo.toml -p agoraseal-prover --all-targets -- -D warnings
 cargo fmt --manifest-path verifiers/ckb-context/Cargo.toml -- --check
+cargo fmt --manifest-path verifiers/sp1-plonk/Cargo.toml -- --check
+cargo clippy --locked --manifest-path verifiers/sp1-plonk/Cargo.toml --target riscv64imac-unknown-none-elf --release -- -D warnings
 ./scripts/build-cellscript.sh
 cargo clippy --locked --manifest-path verifiers/ckb-context/Cargo.toml --target riscv64imac-unknown-none-elf --release -- -D warnings
 cargo fmt --manifest-path reference/vote/Cargo.toml -- --check
@@ -23,4 +25,5 @@ cargo check --locked --workspace --all-targets
 cargo test --locked --workspace
 cargo clippy --locked --workspace --all-targets -- -D warnings
 cargo check --locked -p agoraseal-protocol --target riscv64imac-unknown-none-elf
+if test "$mode" = ci; then ./scripts/rebuild-verifier.sh; fi
 git diff --check

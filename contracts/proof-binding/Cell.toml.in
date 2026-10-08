@@ -1,0 +1,24 @@
+[package]
+name = "agoraseal-proof-binding"
+version = "0.1.0"
+edition = "2026"
+
+[dependencies]
+
+[[deploy.ckb.trusted_external_verifiers]]
+schema = "cellscript-trusted-external-verifier-v1"
+name = "agoraseal-sp1-plonk-statement-v1"
+scope = "action:verify"
+operation = "spawn-wait"
+adapter = "hex4-v1"
+code_hash = "@VERIFIER_HASH@"
+hash_type = "data"
+source_identity = "AgoraSeal verifiers/sp1-plonk; SP1 6.1.0 CKB port f25435f62a49a9d443500a21f5de8d44f83d200d; zk/program-vkey.txt"
+applicability = "One 32-byte CKB hash of the 277-byte public statement; fixed GroupInput witness 0 output_type contains exactly 964 proof bytes then 277 public bytes; witness <= 2048 bytes"
+trust_basis = "Pinned upstream release VK and guest key, exact adapter ELF and source; native/CKB cryptographic mutation evidence required; independent review pending"
+guarantees = [
+  "Exact release PLONK circuit, recursion VK root and zero guest exit code",
+  "Pinned AgoraSeal guest key and canonical public statement domain",
+  "Every public statement byte is cryptographically verified and bound to the parent hash",
+  "No proposal, quorum, chain admission or payout decision is delegated",
+]

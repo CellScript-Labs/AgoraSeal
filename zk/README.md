@@ -70,6 +70,9 @@ does not revalidate consensus or historical Script execution.
 ./scripts/zk.sh build
 ./scripts/zk.sh test-guest
 ./scripts/zk.sh prove-core
+./scripts/zk.sh prove-plonk
+./scripts/zk.sh verify-plonk
+./scripts/zk.sh verify-ckb
 ```
 
 `test-guest` executes a synthetic four-block fixture and compares all public
@@ -112,3 +115,54 @@ The proving run used `SP1_WORKER_NUM_CORE_WORKERS=1` and
 `SP1_WORKER_CORE_BUFFER_SIZE=1` to limit concurrent CPU shard work. Proof bytes
 remain ignored local artifacts and can be regenerated. No compressed SNARK,
 real-node lifecycle or CKB verifier performance is implied by this core proof.
+
+## Release PLONK circuit installation
+
+`prove-plonk` uses the official SDK's `native-gnark` feature and a local Go/CGO
+build, without a Docker daemon or remote proving service. The development host
+used `go1.26.8-X:nodwarf5 linux/amd64`; upstream builds the Go library with its
+`debug` tag. The lockfile fixes the Rust/Go wrapper source and its bundled Go
+module checksums. Full OS/C toolchain and clean-room reproducibility are still
+release requirements, not established by the lockfile alone.
+
+The [official SP1 v6.1.0 PLONK archive](https://sp1-circuits.s3-us-east-2.amazonaws.com/v6.1.0-plonk.tar.gz)
+is 2,305,113,029 bytes, with observed SHA-256
+`b3e2f5b5dd5ca89675c73975d2d1cc4a0f9e7cde048ec5354dabc7b0694aa39b`.
+Download it to ignored `.local/sp1/v6.1.0-plonk.tar.gz`, verify this hash, and
+extract into a staging directory before renaming it to
+`.local/sp1/circuits/plonk/v6.1.0`. The required files are `constraints.json`,
+`plonk_circuit.bin`, `plonk_pk.bin` and `plonk_vk.bin`. Do not treat an existing
+directory as evidence of a complete installation. `scripts/zk.sh prove-plonk`
+checks all four files against `zk/plonk-artifacts.sha256` before building or
+proving. `SP1_PLONK_CIRCUIT_PATH` may select another base directory; the version
+suffix and content hashes remain mandatory.
+
+The archive's VK matches the official standalone verifier and the pinned CKB
+port. Pinning downloaded artifacts is a supply-chain identity check; it is not
+an independent circuit build or a review of the trusted setup/SRS ceremony.
+`SP1_CIRCUIT_MODE`, `WITHOUT_VK_VERIFICATION` and `SP1_DUMP` must be unset.
+The SDK's dump mode exits successfully before proving, so it is explicitly
+rejected by both the entry script and host. Development circuits and skipped
+VK verification cannot produce accepted evidence here. `RUST_LOG=info` enables
+the SDK's stage logs for subsequent runs; unset logging stays quiet.
+
+The PLONK mode verifies the proof with the SDK and the standalone official
+verifier, checks public-field/program-key substitutions, and exercises raw-proof
+mutation/length failures. It writes raw `proof-plonk.bin`, the SDK bundle,
+public bytes and program key under `target/guest-fixture/` on success.
+`verify-ckb` then executes that raw proof through the actual CellScript parent
+and CKB verifier, including adversarial substitutions. Its fixture still uses
+synthetic history and owner Locks; full proposal/chain/treasury admission is
+outside this component. Record actual successful runs separately from this
+command description.
+
+`verify-plonk` revalidates saved artifacts without generating a new proof. It
+replays the original bounded block input, requires the stored public bytes to
+match that replay, enforces the compiled guest-key pin, and verifies the exact
+964-byte proof with the official standalone verifier. It does not trust the
+saved key file as authority. The command also runs recovery mutation tests for
+changed/truncated/extended proof, changed/extended public bytes, a substituted
+key and a different input anchor. The executable accepts an arbitrary input
+directory as `agoraseal-verify-plonk INPUT_DIRECTORY`; the script uses the
+development fixture directory. This recovers verification of a completed
+artifact, not a checkpoint of an unfinished recursive proving computation.

@@ -1,5 +1,9 @@
 # AgoraSeal
 
+**WIP paused on 2026-10-08 at the user's request.** See the English
+[handoff](docs/HANDOFF.md) for the exact implementation state, validation,
+PLONK memory-pressure interruption and prerequisites for resuming.
+
 ZK voting settlement and treasury execution on CKB, with application policies
 implemented in **CellScript**. AgoraSeal explores the ZK direction independently of the Nervos
 treasury team's optimistic tally design.

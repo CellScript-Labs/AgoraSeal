@@ -1,7 +1,7 @@
 [workspace]
 resolver = "3"
 members = ["crates/protocol", "crates/cli"]
-exclude = ["reference/vote", "verifiers/ckb-context", "zk"]
+exclude = ["reference/vote", "verifiers/ckb-context", "verifiers/sp1-plonk", "zk"]
 
 [workspace.package]
 version = "0.1.0"

@@ -1,0 +1,51 @@
+module agoraseal::proof_binding
+
+// Cryptographic statement binding component. Proposal lifecycle, canonical
+// header admission and treasury authorisation are separate application policies.
+action verify(witness statement_hash: Hash) -> u64 {
+    verification
+        require ckb::cell_count(source::group_input(0)) == 1
+        require ckb::cell_count(source::group_output(0)) == 1
+        let output = source::group_output(0)
+        require ckb::cell_data_size(output) == 277
+        require statement_hash == ckb::cell_data_hash(output)
+        let entry = witness::bounded_entry(source::group_input(0), 40)
+        require entry.size == 40
+        let mut binding = Vec::new()
+        binding.push(witness::byte(entry, 8) as u8)
+        binding.push(witness::byte(entry, 9) as u8)
+        binding.push(witness::byte(entry, 10) as u8)
+        binding.push(witness::byte(entry, 11) as u8)
+        binding.push(witness::byte(entry, 12) as u8)
+        binding.push(witness::byte(entry, 13) as u8)
+        binding.push(witness::byte(entry, 14) as u8)
+        binding.push(witness::byte(entry, 15) as u8)
+        binding.push(witness::byte(entry, 16) as u8)
+        binding.push(witness::byte(entry, 17) as u8)
+        binding.push(witness::byte(entry, 18) as u8)
+        binding.push(witness::byte(entry, 19) as u8)
+        binding.push(witness::byte(entry, 20) as u8)
+        binding.push(witness::byte(entry, 21) as u8)
+        binding.push(witness::byte(entry, 22) as u8)
+        binding.push(witness::byte(entry, 23) as u8)
+        binding.push(witness::byte(entry, 24) as u8)
+        binding.push(witness::byte(entry, 25) as u8)
+        binding.push(witness::byte(entry, 26) as u8)
+        binding.push(witness::byte(entry, 27) as u8)
+        binding.push(witness::byte(entry, 28) as u8)
+        binding.push(witness::byte(entry, 29) as u8)
+        binding.push(witness::byte(entry, 30) as u8)
+        binding.push(witness::byte(entry, 31) as u8)
+        binding.push(witness::byte(entry, 32) as u8)
+        binding.push(witness::byte(entry, 33) as u8)
+        binding.push(witness::byte(entry, 34) as u8)
+        binding.push(witness::byte(entry, 35) as u8)
+        binding.push(witness::byte(entry, 36) as u8)
+        binding.push(witness::byte(entry, 37) as u8)
+        binding.push(witness::byte(entry, 38) as u8)
+        binding.push(witness::byte(entry, 39) as u8)
+        ckb::trusted_spawn_wait_cell_dep_hex4(
+            0, Hash::from_bytes(b"@VERIFIER_HASH_BYTES@"), binding, 32, 0, 0, 0
+        )
+        return 0
+}

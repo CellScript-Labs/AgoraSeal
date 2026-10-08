@@ -8,6 +8,9 @@ clients and test/reference models; it must not replace the application's `.cell`
 business policies. `reference/vote` is an explicit non-production comparison
 implementation, not the application's Vote Type Script. A native tally demonstration
 does not complete that goal. Keep the production evidence ledger accurate.
+The user also requires overall production maturity beyond ckb-vote-poc.
+`docs/MATURITY.md` defines the full comparison acceptance surface. Do not claim
+overall superiority from a single component or unmatched performance samples.
 
 Use official CKB sources for consensus, serialization, syscalls and deployment.
 Pin proof systems, guest programs, verifier binaries, keys, codecs and compiler

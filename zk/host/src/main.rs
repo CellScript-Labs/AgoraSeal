@@ -1,19 +1,11 @@
-use agoraseal_protocol::{GuestInput, Limits, PublicStatement, Replay};
-use anyhow::{Context, Result, ensure};
+use agoraseal_protocol::GuestInput;
+use agoraseal_prover::{bounded_file, replay_input};
+use anyhow::{Result, ensure};
 use sp1_sdk::{
     Elf, HashableKey, ProveRequest, Prover, ProverClient, ProvingKey, SP1Proof, SP1PublicValues,
     SP1Stdin,
 };
-use std::{fs, io::Read, path::Path};
-
-fn bounded_file(path: &Path, max: usize) -> Result<Vec<u8>> {
-    let mut bytes = Vec::new();
-    fs::File::open(path)?
-        .take(max as u64 + 1)
-        .read_to_end(&mut bytes)?;
-    ensure!(bytes.len() <= max, "{} exceeds bound", path.display());
-    Ok(bytes)
-}
+use std::{fs, path::Path};
 
 fn stdin(frames: &[Vec<u8>]) -> SP1Stdin {
     let mut input = SP1Stdin::new();
@@ -27,40 +19,25 @@ fn stdin(frames: &[Vec<u8>]) -> SP1Stdin {
 async fn main() -> Result<()> {
     let args: Vec<_> = std::env::args().skip(1).collect();
     ensure!(
-        args.len() == 3 && matches!(args[0].as_str(), "execute" | "test-guest" | "prove-core"),
-        "usage: agoraseal-prover execute|test-guest|prove-core GUEST_ELF INPUT_DIRECTORY"
+        args.len() == 3
+            && matches!(
+                args[0].as_str(),
+                "execute" | "test-guest" | "prove-core" | "prove-plonk"
+            ),
+        "usage: agoraseal-prover execute|test-guest|prove-core|prove-plonk GUEST_ELF INPUT_DIRECTORY"
     );
-    let root = Path::new(&args[2]);
-    let limits = Limits::default();
-    let header_bytes = bounded_file(&root.join("input.bin"), GuestInput::LEN)?;
-    let header = GuestInput::decode(&header_bytes).map_err(|e| anyhow::anyhow!("{e:?}"))?;
-    ensure!((2..=limits.blocks).contains(&header.blocks), "block count");
-    let mut frames = vec![header_bytes];
-    let mut replay = Replay::new(
-        header.proposal_script,
-        header.start_hash,
-        header.end_hash,
-        limits,
-    );
-    let mut total = 0u64;
-    for i in 0..header.blocks {
-        let bytes = bounded_file(&root.join(format!("block-{i:06}.bin")), limits.block_bytes)?;
-        total = total
-            .checked_add(bytes.len() as u64)
-            .context("input size overflow")?;
-        ensure!(total <= limits.total_bytes, "total bytes");
-        replay
-            .push(&bytes)
-            .map_err(|e| anyhow::anyhow!("block {i}: {e:?}"))?;
-        frames.push(bytes);
-    }
-    let tally = replay.finish().map_err(|e| anyhow::anyhow!("{e:?}"))?;
-    let expected = PublicStatement::from_tally(&tally).encode();
-    let elf = Elf::from(bounded_file(Path::new(&args[1]), 32 * 1024 * 1024)?);
+    let plonk = args[0] == "prove-plonk";
     ensure!(
-        std::env::var_os("WITHOUT_VK_VERIFICATION").is_none(),
-        "WITHOUT_VK_VERIFICATION must be unset"
+        !plonk || cfg!(feature = "native-gnark"),
+        "prove-plonk requires the native-gnark build feature"
     );
+    for name in ["SP1_CIRCUIT_MODE", "WITHOUT_VK_VERIFICATION", "SP1_DUMP"] {
+        ensure!(std::env::var_os(name).is_none(), "{name} must be unset");
+    }
+    sp1_sdk::setup_logger();
+    let root = Path::new(&args[2]);
+    let (frames, expected) = replay_input(root)?;
+    let elf = Elf::from(bounded_file(Path::new(&args[1]), 32 * 1024 * 1024)?);
     println!("initializing local SP1 CPU prover");
     let client = ProverClient::builder().cpu().build().await;
     println!("executing bounded block replay guest");
@@ -110,11 +87,18 @@ async fn main() -> Result<()> {
         }
         println!("five direct guest rejection cases passed");
     }
-    if args[0] == "prove-core" {
+    if args[0] == "prove-core" || plonk {
         println!("setting up guest proving key");
         let pk = client.setup(elf).await?;
-        println!("generating real SP1 core proof on local CPU");
-        let proof = client.prove(&pk, stdin(&frames)).core().await?;
+        println!(
+            "generating real SP1 {} proof on local CPU",
+            if plonk { "PLONK" } else { "core" }
+        );
+        let proof = if plonk {
+            client.prove(&pk, stdin(&frames)).plonk().await?
+        } else {
+            client.prove(&pk, stdin(&frames)).core().await?
+        };
         client.verify(&proof, pk.verifying_key(), None)?;
         ensure!(
             proof.public_values.as_slice() == expected,
@@ -155,11 +139,52 @@ async fn main() -> Result<()> {
         println!(
             "real proof rejected 14 public-field substitutions, wrong program key and empty proof"
         );
-        proof.save(root.join("proof-core.bin"))?;
+        if plonk {
+            let raw = proof.bytes();
+            let key = pk.verifying_key().bytes32();
+            let verify = |bytes: &[u8], public: &[u8], program_key: &str| {
+                sp1_verifier::PlonkVerifier::verify(
+                    bytes,
+                    public,
+                    program_key,
+                    &sp1_verifier::PLONK_VK_BYTES,
+                )
+            };
+            verify(&raw, &expected, &key)
+                .map_err(|e| anyhow::anyhow!("standalone PLONK verifier: {e:?}"))?;
+            for offset in [0, 4, 36, 68, 100, raw.len() - 1] {
+                let mut changed = raw.clone();
+                changed[offset] ^= 1;
+                ensure!(
+                    verify(&changed, &expected, &key).is_err(),
+                    "PLONK proof mutation at {offset} accepted"
+                );
+            }
+            for length in [0, 4, 99, raw.len() - 1] {
+                ensure!(
+                    verify(&raw[..length], &expected, &key).is_err(),
+                    "truncated PLONK proof accepted"
+                );
+            }
+            let mut trailing = raw.clone();
+            trailing.push(0);
+            ensure!(
+                verify(&trailing, &expected, &key).is_err(),
+                "PLONK proof trailing byte accepted"
+            );
+            fs::write(root.join("proof-plonk.bin"), &raw)?;
+            proof.save(root.join("proof-plonk-bundle.bin"))?;
+            println!(
+                "real PLONK proof: {} bytes; standalone verifier and 11 raw-proof rejection checks passed",
+                raw.len()
+            );
+        } else {
+            proof.save(root.join("proof-core.bin"))?;
+        }
         fs::write(root.join("program-vkey.txt"), pk.verifying_key().bytes32())?;
         fs::write(root.join("public-values.bin"), expected)?;
         println!(
-            "real SP1 core proof generated and verified natively; CKB SNARK verification remains separate"
+            "real SP1 proof generated and verified natively; CKB-VM verification remains separate"
         );
     }
     Ok(())

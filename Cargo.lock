@@ -23,6 +23,7 @@ dependencies = [
  "ckb-hash",
  "ckb-testtool",
  "ckb-types",
+ "ckb-vm",
  "merkle-cbt",
 ]
 

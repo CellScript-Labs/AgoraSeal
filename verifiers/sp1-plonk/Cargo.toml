@@ -1,0 +1,30 @@
+[package]
+name = "agoraseal-sp1-plonk"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.97.1"
+license = "MIT"
+publish = false
+
+[workspace]
+
+[[bin]]
+name = "agoraseal-sp1-plonk"
+path = "src/main.rs"
+test = false
+bench = false
+
+[dependencies]
+ckb-std = { version = "=1.1.0", default-features = false, features = ["allocator", "dummy-atomic", "ckb-types"] }
+ckb-hash = { version = "=1.1.1", default-features = false, features = ["ckb-contract"] }
+sp1-verifier = { git = "https://github.com/XuJiandong/sp1.git", rev = "f25435f62a49a9d443500a21f5de8d44f83d200d", default-features = false }
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+overflow-checks = true
+panic = "abort"
+
+[profile.release.package.ckb-std]
+overflow-checks = false
