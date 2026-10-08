@@ -1,0 +1,47 @@
+module agoraseal::funded_treasury
+
+// The funding transaction commits the full refund Lock hash in these Lock args.
+// The proposal Type owns creation, immutable fields, real proof and one-time state.
+lock release() -> bool {
+    verification
+        require ckb::cell_count(source::input(0)) == 1
+        require ckb::cell_count(source::group_input(0)) == 1
+        require ckb::cell_count(source::output(0)) == 2
+        let reserve = source::group_input(0)
+        let receipt = source::output(0)
+        let payment = source::output(1)
+        require ckb::cell_data_size(reserve) == 188
+        require ckb::cell_data_size(receipt) == 465
+        require ckb::cell_has_type(reserve)
+        require ckb::cell_has_type(receipt)
+        require ckb::cell_type_hash(receipt) == ckb::cell_type_hash(reserve)
+        require ckb::cell_lock_hash(receipt) == ckb::cell_lock_hash(reserve)
+        require ckb::cell_capacity(receipt) == ckb::cell_occupied_capacity(receipt)
+        require ckb::cell_data_size(payment) == 0
+        require !ckb::cell_has_type(payment)
+        let amount = ckb::cell_data_u64_le(reserve, 84)
+        let quorum = ckb::cell_data_u64_le(reserve, 76)
+        let yes = ckb::cell_data_u64_le(receipt, 408)
+        let no = ckb::cell_data_u64_le(receipt, 416)
+        let passed = ckb::cell_data_u8(receipt, 464)
+        require passed <= 1
+        require yes <= 18446744073709551615 - no
+        let total = yes + no
+        let passing = yes > no && total >= quorum
+        require (passed == 1) == passing
+        require ckb::cell_capacity(payment) > 0
+        if passing {
+            require amount > 0
+            require ckb::cell_capacity(payment) == amount
+            require hash_blake2b(ckb::cell_lock_hash(payment)) == ckb::cell_data_blake2b_span(reserve, 92, 32)
+        } else {
+            require ckb::cell_capacity(payment) >= amount
+            ckb::require_cell_lock_hash(payment, ckb::cell_lock_args32(reserve))
+        }
+        let kept = ckb::cell_capacity(receipt)
+        let paid = ckb::cell_capacity(payment)
+        require kept <= 18446744073709551615 - paid
+        require ckb::cell_capacity(reserve) >= kept + paid
+        // All non-receipt capacity goes to the exact payee, except this fee cap.
+        require ckb::cell_capacity(reserve) - kept - paid <= 100000
+}

@@ -1,0 +1,16 @@
+version = 5
+schema = "cellscript-lock-v0.30-single-package-coordinate-v1"
+resolver_model = "single-package-coordinate-v1"
+
+[package]
+edition = "2026"
+name = "agoraseal-funded-proposal"
+version = "0.1.0"
+source_hash = "f97b853d6b1ad8d5b64835e8228ca5876ed4ef2b7d00b5261c6c57320941c1ba"
+compiler_requirement = "*"
+resolver_compiler_version = "0.31.0"
+
+[root]
+manifest_digest = "sha256:d85dec6ef23f669050b0271011c3f02e3353bbd6cb20903cbac092d3c0ae189e"
+
+[dependencies]

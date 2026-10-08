@@ -15,12 +15,12 @@ if [[ -n "$(git -C "$compiler_root" ls-files --others --exclude-standard -- src 
 fi
 cargo build --locked --manifest-path "$compiler_root/Cargo.toml" -p cellscript --bin cellc
 compiler="$compiler_root/target/debug/cellc"
-if test "$(uname -s)" = Darwin; then
-  ./scripts/canonical-build.sh ckb
-else
-  cargo build --locked --manifest-path verifiers/ckb-context/Cargo.toml --target riscv64imac-unknown-none-elf --release
-  cargo build --locked --manifest-path verifiers/sp1-plonk/Cargo.toml --target riscv64imac-unknown-none-elf --release
-fi
+# Download only locked dependencies before the read-only offline container.
+# Linux host clang versions can also change the admitted SP1 ELF.
+for component in ckb-context ckb-state-context sp1-plonk; do
+  cargo fetch --locked --manifest-path "verifiers/$component/Cargo.toml"
+done
+./scripts/canonical-build.sh ckb
 cargo run --locked -p agoraseal-cli -- context-pin \
   verifiers/ckb-context/target/riscv64imac-unknown-none-elf/release/agoraseal-ckb-context \
   contracts/vote --check
@@ -41,4 +41,17 @@ mkdir -p target/cellscript
   --entry-action verify --primitive-strict 0.16 -o target/cellscript/proof-binding.elf
 "$compiler" verify-artifact target/cellscript/proof-binding.elf --verify-sources \
   --expect-target-profile ckb --production --json > target/cellscript/proof-binding.checker.json
+"$compiler" contracts/funded-treasury/treasury.cell --target riscv64-elf --target-profile ckb \
+  --entry-lock release --primitive-strict 0.16 -o target/cellscript/funded-treasury.elf
+"$compiler" verify-artifact target/cellscript/funded-treasury.elf --verify-sources \
+  --expect-target-profile ckb --production --json > target/cellscript/funded-treasury.checker.json
+cargo run --locked -p agoraseal-cli -- lifecycle-pin \
+  verifiers/ckb-state-context/target/riscv64imac-unknown-none-elf/release/agoraseal-ckb-state-context \
+  verifiers/sp1-plonk/target/riscv64imac-unknown-none-elf/release/agoraseal-sp1-plonk \
+  target/cellscript/vote.elf target/cellscript/funded-treasury.elf contracts/funded-proposal --check
+"$compiler" contracts/funded-proposal --target riscv64-elf --target-profile ckb \
+  --entry-action settle --primitive-strict 0.16 -o target/cellscript/funded-proposal.elf
+"$compiler" verify-artifact target/cellscript/funded-proposal.elf --verify-sources \
+  --expect-target-profile ckb --production --json > target/cellscript/funded-proposal.checker.json
+cargo run --locked -p agoraseal-cli -- sdk-pin "$PWD" --check
 printf '%s\n' "$compiler_pin" > target/cellscript/compiler-commit.txt

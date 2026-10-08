@@ -3,6 +3,14 @@
 Historical stop-state record: the user explicitly resumed work on 2026-10-08.
 The pause instruction below describes the earlier handoff, not a new pause.
 See `PRODUCTION.md` for current acceptance evidence.
+The resumed branch now implements funded `.cell` creation/settlement/refund,
+has real signed disposable-node pass/fail lifecycles and committed node proofs,
+and includes the CCC client and operator/recovery runbook. The previous pause
+and missing-proof sections below are historical. No production release or
+overall superiority claim is implied by this local continuation.
+CCC signed DAO/creation/vote, settlement/payment and end-block replacement
+reproof acceptance also completed. See [the lifecycle evidence](evidence/LIFECYCLE-2026-10-08.md)
+for current local tests and the remaining production release requirements.
 The resumed run generated and verified the real PLONK/CKB binding component;
 the earlier missing-proof result below is historical. See
 [the 2026-10-08 observation](evidence/PLONK-2026-10-08.md).

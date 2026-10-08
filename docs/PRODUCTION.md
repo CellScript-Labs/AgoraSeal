@@ -1,54 +1,55 @@
 # Production acceptance ledger
 
-Work resumed at the user's request on 2026-10-08 in a fresh sibling checkout.
-The previous stop state remains in [HANDOFF.md](HANDOFF.md). The resumed run
-generated a real release-circuit PLONK proof and verified it through the actual
-CellScript parent and CKB-VM child. See [the component evidence](evidence/PLONK-2026-10-08.md)
-and [the committed synthetic fixture](../tests/fixtures/sp1-plonk/README.md).
-Complete application admission remains unavailable.
+Resumed 2026-10-08 from the public handoff in an independent sibling checkout,
+branch `arthur/resume-handoff`. The funded `.cell` application, real PLONK proofs
+and signed disposable-node pass/refund lifecycles now work. This is a development
+implementation with local evidence, not a production release. The broader
+maturity target against ckb-vote-poc remains subject to every row below.
 
-Objective: independently named ZK DAO implementation in
-`~/RustRoverProjects/AgoraSeal`, published under CellScript-Labs and made usable
-in production. Completion means the entire application and its operational
-evidence work. Repository creation and a native tally are initial steps only.
-The additional acceptance target is production maturity beyond the reference
-PoC across all dimensions in [MATURITY.md](MATURITY.md), with matched cost
-measurements and explicit remaining tradeoffs.
-
-| Requirement | Current evidence | Status |
+| Requirement | Current authoritative evidence | Status / remaining gap |
 | --- | --- | --- |
-| Independent repository, reproducible native workspace | Public AgoraSeal repository, lockfiles, native gates | Repository published |
-| Voting policy and canonical authenticated block replay | Protocol crate and adversarial tests | Native layer only |
-| CellScript DAO eligibility and proposal lifecycle | Actual `.cell` vote policy, exact context adapter, parent-child VM tests (normal/bound/reclaim + 19 negative cases) | Vote component implemented; proposal creation/lifecycle pending |
-| Real ZK guest/prover with exact program identity | Original guest/key reproduced; real release-circuit PLONK proof generated and verified by SDK and standalone verifier; public/key/raw-proof mutations reject | Cryptographic component implemented; complete application admission pending |
-| Exact verifier executed in CKB-VM | Real 964-byte PLONK proof passes actual CellScript parent and pinned child; 20 substitutions reject; valid/late-invalid costs measured | Proof-binding component verified; proposal/chain admission pending |
-| CellScript source/ELF/checker settlement binding | Actual proof-binding `.cell` compiles and passes artifact checking | Binding component only; proposal/chain/settlement admission pending |
-| Funded treasury lifecycle and single-use payouts | Actual `.cell` payment Lock: ELF/checker and CKB-VM positive + 15 negative cases | Payment component only; creation and authenticated ZK settlement pending |
-| SDK, wallet/prover ordering and stale-state recovery | Standalone real-proof revalidation and seven stale/partial artifact cases pass; input is replayed, saved keys are not authority | Completed-artifact recovery implemented; wallet/SDK and chain recovery pending |
-| End-to-end node acceptance with real signatures | None | Not implemented |
-| Wrong chain/window/vote/key/proof and payout attacks | Native/CellScript/guest corpus plus real PLONK public/key/proof substitutions and recovery mutations | Cryptographic component coverage present; chain/payout lifecycle incomplete |
-| Maximal and late-invalid proof/runtime cost measurements | Four-block PLONK run completed; 66,012,150 valid CKB cycles and 129,217,167 changed-YES minimum rejection budget; explicit fixture regression ceilings | Component observation only; maximal and matched application benchmarks pending |
-| Reproducible guest/verifier/parent build and supply chain pins | Original guest/key/context/SP1 ELF reproduced on Apple Silicon through pinned Linux tools; fresh-target verifier rebuild matches; committed proof fixture | Full hermetic release closure incomplete |
-| Setup/key custody and security disposition | No setup or review performed | Pending |
-| Deployment tooling, rehearsal and operator runbook | None | Not implemented |
-| CI and immutable release evidence | Local gate and `ci/github-actions.yml` template; token lacks workflow scope | Hosted CI not active |
-| GitHub push verified against local commit | CellScript vote/context milestone `5b6106a7b86d51b736a7df772ded548fba4c9a4e` verified | Component publication complete |
+| Repository and locks | Independent AgoraSeal checkout, exact Rust/CellScript/Cargo/npm pins | Resumed work is local; no new remote publication |
+| Canonical replay and voting semantics | Protocol guest authenticates complete transaction/witness roots, replacement/retraction/spend ordering and checked tally; adversarial corpus | Implemented; native tests alone are non-consensus |
+| Actual `.cell` business rules | `contracts/vote`, `contracts/funded-proposal`, `contracts/funded-treasury`; source/metadata/lowering/ELF checking | Implemented for stated bounded policy |
+| Governance admission | Exact vote/DAO/funding Lock/genesis identities, unique Type-ID, amount/quorum/window/reserve and recipient/refund commitments; 24 creation VM mutations | Implemented; actual deployment custody pending |
+| Real cryptographic binding | Fixed SP1 6.1.0 guest/key/release circuit and CKB port; real public/key/proof mutations reject; normal gates independently verify six committed proofs | Implemented; independent circuit/SRS disposition pending |
+| Complete settlement/payment/refund | Actual input/outpoint/data/creation/header association; immutable receipt and exact payment/refund; 31 funded VM mutations and node goldens | Implemented; 603 CKB permanently occupied receipt, no early cancellation/reclaim |
+| Signed node admission | Clean CKB f7fa443 0.207.0; normal send_transaction for DAO deposit, vote, passed payment, failed refund and both signature spends; replay/invalid proof/signature reject | Disposable-node acceptance completed; no public network deployment |
+| CCC wallet/client | Typed builders and fixed artifact pins; ordinary funding, capacity/fee, witness/dependency freezing, no-cache state/chain checks, preflight and confirmation; 11 client tests | Signed DAO/creation/vote, permissionless settlement and signed payment node path completed; no browser connector/UI |
+| Recovery | Exact canonical committed tx/witness recovery; independent completed-proof reuse; stale/partial mutations; CCC removes/replaces E, rejects old proof in SDK/node/context, reproves and settles | Native and CCC recovery exercised; no mid-computation checkpoint or automatic public-network finality policy |
+| Resource costs | Node golden passed 66,308,424 / failed 66,503,507 / CCC new-window 66,409,909 cycles, each 2,501 bytes; eight direct guest rejection cases include frame/count/allocation bounds; observed proof time/RSS | Small workload observations only; maximal populated-window and matched comparative benchmarks pending |
+| Reproducibility | Original Linux guest/key/SP1/context pins reproduced on macOS; all three children and both funded policies compare byte-identical from fresh source/output roots; exact canonical tool hashes | Validated; no hermetic OS/circuit clean-room claim |
+| Setup/key custody | Public fixture scalars only; no user key or secret setup imported; release file hashes and upstream SRS source lineage in `zk/SRS.md` | Independent SRS/key linkage and production custody disposition pending |
+| Security readiness | Application threat model, source review and executable attack corpus in `THREAT-MODEL.md` | Implementation review only; independent application/circuit review pending |
+| Operator experience | `RUNBOOK.md`, CCC docs, canonical export/prove/revalidate tools, owned-node lifetime and native resume | Implemented local workflow; actual network/finality/custody parameters missing |
+| CI/release | Local dev/ci gates and pinned workflow template | Hosted workflow inactive; no immutable release or required branch checks |
+| Maturity comparison | Upstream HEAD rechecked 2026-10-08, still c70421b; concrete admission closure and visible policy costs | No overall production, speed or security superiority claim |
 
-Next implementation sequence: authenticated native protocol and mutation corpus;
-CellScript proposal creation/lifecycle and node-backed eligibility tests; real SP1 guest/prover
-evaluation; typed CellScript settlement integration; treasury and SDK lifecycle;
-full node/adversarial/resource/reproducibility work; production admission.
-Adapt the sequence to measured blockers while retaining every outcome above.
+Public fixed evidence is in `tests/fixtures/funded-failed` and
+`tests/fixtures/node-lifecycle`; reports distinguish original normal node
+admission from later VM replay and recovered committed rows. The first resumed
+component milestone is documented in `evidence/PLONK-2026-10-08.md`. The node
+harness recovered from an overly strict spent-status assertion without changing
+chain/proof authority or reproving its completed first statement.
+The complete application and CCC reorg/reproof observation is recorded in
+[the lifecycle evidence](evidence/LIFECYCLE-2026-10-08.md). The old CCC proof
+remains cryptographically valid for its historical frames; it cannot authorize
+settlement with the replacement canonical end header.
 
-No production approval is inherited from CellScript's counter circuit. No
-public-network deployment, consensus treasury activation, private ballot
-confidentiality or independent security review has occurred. Test setup keys
-must never be promoted as production material. Deployment to funded public
-networks will require actual network/custody parameters; implementation and
-local-node rehearsal can proceed independently.
+## Admission remains closed
 
-Application business rules must live in `.cell`; moving them into Rust does
-not satisfy this ledger. The Rust eligibility reference is outside the
-application contract directory. The treasury checker passing `--production`
-means its artifact has no unsupported execution paths; it does not certify
-this application's missing proof/creation/network layers.
+`./scripts/gate.sh production` rejects unresolved maximal-resource/matched-cost,
+SRS/review, hosted release and network/custody evidence. A green local gate,
+artifact-checker `--production` flag or disposable node cannot substitute for
+those requirements. Public ballots are not confidential; ordinary pre-funding
+is not consensus secondary issuance treasury activation. No production approval
+is inherited from a compiler circuit/profile or the upstream PoC.
+
+Release preparation still requires a measured populated workload and an agreed
+operating envelope, matching reference semantics before cost comparison, SRS
+provenance/disposition, independent review, activated required hosted checks,
+versioned immutable artifacts, protected code Cell custody and actual network
+confirmation parameters. None of those statuses may be inferred from repository
+creation or a successful synthetic proof. Public funding requires concrete
+network/custody instructions; implementation and local rehearsal were carried
+out without importing user secrets or modifying active sibling repositories.

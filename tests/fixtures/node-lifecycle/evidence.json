@@ -1,0 +1,280 @@
+{
+  "admission": "normal send_transaction; disposable Dummy-PoW chain",
+  "ckb_binary_sha256": "6758ead98ac8f8deee67e4a2aea32c61801480e70199b52f463bbb7661c3d6b1",
+  "ckb_revision": "f7fa4436737756f97a24e254f22c13a36316ecea",
+  "ckb_version": "ckb 0.207.0 (f7fa443 2026-06-18)",
+  "deployments": [
+    {
+      "artifact_size_bytes": 284560,
+      "cell_dep": {
+        "dep_type": "code",
+        "out_point": {
+          "index": "0x0",
+          "tx_hash": "0xf44275cb3f419682e8375ed719bad3ca8f54b6a39914a9ffd297f9089b72ea87"
+        }
+      },
+      "data_hash": "0xa14f73480477fb0d2bddec5b9d7df38ad03c2ca861441d66de00862043e85b02",
+      "name": "verifiers/sp1-plonk/target/riscv64imac-unknown-none-elf/release/agoraseal-sp1-plonk",
+      "recovered_from_canonical_chain": true
+    },
+    {
+      "artifact_size_bytes": 49632,
+      "cell_dep": {
+        "dep_type": "code",
+        "out_point": {
+          "index": "0x0",
+          "tx_hash": "0xa674786bc712d3997eec6a37327bbe83af9aca7e98e15007c65dd6dd630f0440"
+        }
+      },
+      "data_hash": "0xbab53b4c8d28033a9194b8b5acd08a062ae712ae03bdd1d1d8196106b8ccfe0d",
+      "name": "verifiers/ckb-state-context/target/riscv64imac-unknown-none-elf/release/agoraseal-ckb-state-context",
+      "recovered_from_canonical_chain": true
+    },
+    {
+      "artifact_size_bytes": 35552,
+      "cell_dep": {
+        "dep_type": "code",
+        "out_point": {
+          "index": "0x0",
+          "tx_hash": "0x0a230f9ba5040a47aa581909d53fc2146a0d9c2cb908ab2e7d07eebf2472e539"
+        }
+      },
+      "data_hash": "0x5739d9d4928ee4ed0abe51456f708fb155e7d59cfe3d76f06980b1b3060255c8",
+      "name": "verifiers/ckb-context/target/riscv64imac-unknown-none-elf/release/agoraseal-ckb-context",
+      "recovered_from_canonical_chain": true
+    },
+    {
+      "artifact_size_bytes": 27104,
+      "cell_dep": {
+        "dep_type": "code",
+        "out_point": {
+          "index": "0x0",
+          "tx_hash": "0xb878709fc6eb9ea28980095c3cfd5dcd7f310e5b11dc39c8596a068b38ace627"
+        }
+      },
+      "data_hash": "0xe5090fbbe406884866f57b51a22e41e6087fdb5195d09fc9b957e188f8a9bb74",
+      "name": "target/cellscript/vote.elf",
+      "recovered_from_canonical_chain": true
+    },
+    {
+      "artifact_size_bytes": 72344,
+      "cell_dep": {
+        "dep_type": "code",
+        "out_point": {
+          "index": "0x0",
+          "tx_hash": "0x4bab46f93d503191764cea0c8c873cf4ed383072cbc13d00d68d8ef0c6cc9d2d"
+        }
+      },
+      "data_hash": "0x1c5cfaeaee7d318c13d5882d079fb39a58ba503ebb20efc355da346c2c0568cd",
+      "name": "target/cellscript/funded-proposal.elf",
+      "recovered_from_canonical_chain": true
+    },
+    {
+      "artifact_size_bytes": 15416,
+      "cell_dep": {
+        "dep_type": "code",
+        "out_point": {
+          "index": "0x0",
+          "tx_hash": "0x91f9e3d7b1891b0e267ba2fd86965fc7e98ecb611d9920ccdfd52620a62be48f"
+        }
+      },
+      "data_hash": "0x426fc417f5402a7d5ca78363357b9de31fbd9496806ad59249d2c5f3fc3a78d9",
+      "name": "target/cellscript/funded-treasury.elf",
+      "recovered_from_canonical_chain": true
+    }
+  ],
+  "genesis_hash": "0xb1308c5915db1ae2ed1511f83daf95224bbdef11e226d7054b5720b9efee90d5",
+  "production_admitted": false,
+  "rows": [
+    {
+      "case": "bootstrap public fixture wallet",
+      "commit": {
+        "status": {
+          "block_hash": "0xf8e3c015126277b7aa76ae93d546f1952a4fe36539611d1c81a8b8266661490f",
+          "block_number": "0xee",
+          "reason": null,
+          "status": "committed",
+          "tx_index": "0x1"
+        },
+        "tx_hash": "0xb3efec0fb979031f057b7cc76d0c0a5feac90f90159bd5e41e45ba46e3b9e134"
+      },
+      "dry_run": {
+        "recovered_committed": true
+      },
+      "tx_bytes": 434
+    },
+    {
+      "case": "real signed DAO deposit",
+      "commit": {
+        "status": {
+          "block_hash": "0xcf29cf1a6906af873d6e2599de0cf3f6616836ca0ef7f514ecbff5f80c3e1db0",
+          "block_number": "0xf1",
+          "reason": null,
+          "status": "committed",
+          "tx_index": "0x1"
+        },
+        "tx_hash": "0x1c667cc540ef204e7f3daa81a81748c69338fd6e6c0dee98147f3e8a5aca78e9"
+      },
+      "dry_run": {
+        "recovered_committed": true
+      },
+      "tx_bytes": 558
+    },
+    {
+      "case": "create passing proposal",
+      "commit": {
+        "status": {
+          "block_hash": "0x7246c2f99141f0765c3903a464817e060de87b6b1269bbf51f9bb60e7f925300",
+          "block_number": "0xf4",
+          "reason": null,
+          "status": "committed",
+          "tx_index": "0x1"
+        },
+        "tx_hash": "0xa2d69bd821e52aa951b1fd68ec2c25bfcaab8a91998f2d24e1769b3b064acd1f"
+      },
+      "dry_run": {
+        "recovered_committed": true
+      },
+      "tx_bytes": 1021
+    },
+    {
+      "case": "real signed eligible vote",
+      "commit": {
+        "status": {
+          "block_hash": "0xaf61d2b3c0de28fe68f9d4a318c144d3eab515fdb593d6166eed3802c47df93b",
+          "block_number": "0xf7",
+          "reason": null,
+          "status": "committed",
+          "tx_index": "0x1"
+        },
+        "tx_hash": "0x686ceaa490073ed533ca7b3594953cd395f3c8dd46053fbd781740ca3564d146"
+      },
+      "dry_run": {
+        "recovered_committed": true
+      },
+      "tx_bytes": 838
+    },
+    {
+      "case": "passed settlement",
+      "commit": {
+        "status": {
+          "block_hash": "0xeb07df9922b4988452eb3fedf4456797b98bb4b4531879cb64ff666c46816cd7",
+          "block_number": "0x103",
+          "reason": null,
+          "status": "committed",
+          "tx_index": "0x1"
+        },
+        "tx_hash": "0x9c09e7ddaa82c26f53c5bac06b5956e25a93f9012f12afd2cfb4e1d8dc09a7ca"
+      },
+      "dry_run": {
+        "recovered_committed": true
+      },
+      "tx_bytes": 2501
+    },
+    {
+      "case": "spent proposal replay",
+      "rejected": true
+    },
+    {
+      "case": "real signed payout/refund spend",
+      "commit": {
+        "generated_blocks_after_submit": 3,
+        "status": {
+          "block_hash": "0x33bc48978fa7f19fda9bb83c1687f05d434f48a21a8f26a14c0d2f49f55d18ac",
+          "block_number": "0x106",
+          "reason": null,
+          "status": "committed",
+          "tx_index": "0x1"
+        },
+        "tx_hash": "0x7c1ab5495e7063d0655db5745d9cc9a16bf0e48044bb3d2edb3a65b8b2463966"
+      },
+      "dry_run": {
+        "cycles": "0x18fb52"
+      },
+      "tx_bytes": 351
+    },
+    {
+      "expected": {
+        "data_hash": null,
+        "error_code": null,
+        "source": "Inputs[0].Lock"
+      },
+      "label": "creation missing real signature",
+      "matched_expected": true,
+      "reason": "RPC dry_run_transaction returned error: {\"code\":-302,\"data\":\"Error { kind: Script, inner: TransactionScriptError { source: Inputs[0].Lock, cause: ValidationFailure: see error code -2 on page https://nervosnetwork.github.io/ckb-script-error-codes/by-type-hash/9bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce8.html#-2 } }\",\"message\":\"TransactionFailedToVerify: Script(TransactionScriptError { source: Inputs[0].Lock, cause: ValidationFailure: see error code -2 on page https://nervosnetwork.github.io/ckb-script-error-codes/by-type-hash/9bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce8.html#-2 })\"}",
+      "status": "rejected"
+    },
+    {
+      "case": "create failing proposal",
+      "commit": {
+        "generated_blocks_after_submit": 3,
+        "status": {
+          "block_hash": "0xda698e0ec0e9f538669ff4f13f4fd7f963b9dac6fbbc18de7ac31031eb963359",
+          "block_number": "0x109",
+          "reason": null,
+          "status": "committed",
+          "tx_index": "0x1"
+        },
+        "tx_hash": "0x68c4938fe464d6a2008ed95fe37fccccb0907507dbcac8b2220955951f1e31ae"
+      },
+      "dry_run": {
+        "cycles": "0x1c803f"
+      },
+      "tx_bytes": 1021
+    },
+    {
+      "expected": {
+        "data_hash": null,
+        "error_code": null,
+        "source": null
+      },
+      "label": "real proof substitution",
+      "matched_expected": true,
+      "reason": "RPC dry_run_transaction returned error: {\"code\":-302,\"data\":\"Error { kind: Script, inner: TransactionScriptError { source: Inputs[0].Type, cause: ValidationFailure: see error code 1 on page https://nervosnetwork.github.io/ckb-script-error-codes/by-data-hash/1c5cfaeaee7d318c13d5882d079fb39a58ba503ebb20efc355da346c2c0568cd.html#1 } }\",\"message\":\"TransactionFailedToVerify: Script(TransactionScriptError { source: Inputs[0].Type, cause: ValidationFailure: see error code 1 on page https://nervosnetwork.github.io/ckb-script-error-codes/by-data-hash/1c5cfaeaee7d318c13d5882d079fb39a58ba503ebb20efc355da346c2c0568cd.html#1 })\"}",
+      "status": "rejected"
+    },
+    {
+      "case": "failed refund",
+      "commit": {
+        "generated_blocks_after_submit": 3,
+        "status": {
+          "block_hash": "0xcb9e50d68ccd206fbd8de61037d35a01bcf628a3f37523150fc34f8095aa0a6e",
+          "block_number": "0x118",
+          "reason": null,
+          "status": "committed",
+          "tx_index": "0x1"
+        },
+        "tx_hash": "0xa8228860d0507fbd5005d0ac64d7d56480643d04cf642c4b3f9c8590c36daa04"
+      },
+      "dry_run": {
+        "cycles": "0x3f6c353"
+      },
+      "tx_bytes": 2501
+    },
+    {
+      "case": "spent proposal replay",
+      "rejected": true
+    },
+    {
+      "case": "real signed payout/refund spend",
+      "commit": {
+        "generated_blocks_after_submit": 3,
+        "status": {
+          "block_hash": "0xd8a5b0b9e2024a15c021c0e877772894777d2cf326d93d63c89fcf09f5bfffa2",
+          "block_number": "0x11b",
+          "reason": null,
+          "status": "committed",
+          "tx_index": "0x1"
+        },
+        "tx_hash": "0xf1e1a8c811e035666a418ead7abf27f2ed2f3189fa3c18566ca80c6454a4c4ce"
+      },
+      "dry_run": {
+        "cycles": "0x18e277"
+      },
+      "tx_bytes": 351
+    }
+  ],
+  "schema": "agoraseal-node-rehearsal-v1",
+  "signatures": "real standard secp256k1 signatures with public fixture scalar 0x45 repeated; no user key imported",
+  "status": "passed"
+}

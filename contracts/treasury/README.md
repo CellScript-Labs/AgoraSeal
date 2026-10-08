@@ -20,10 +20,15 @@ The Lock checks the complete dependency Type hash, all matching commitments,
 positive amount/quorum, passed exactly 1, YES > NO, checked total and
 total >= quorum. No tally data is taken from an untrusted witness.
 
+This older isolated component is not the funded application's spending Lock.
+The complete implemented policy is in [funded-proposal](../funded-proposal/README.md)
+and [funded-treasury](../funded-treasury/README.md), with real proof and signed
+disposable-node evidence. The following boundary applies to this component only.
+
 **Incomplete authentication chain:** escrow initialization must pin an admitted
 immutable ZK settlement Type Script; that Type must authenticate the proof and
 proposal/window/program identity. Unique proposal/escrow creation must prevent
-duplicate funding claims. Those components are not implemented. Tests use an
+duplicate funding claims. This component does not implement those checks. Tests use an
 always-success settlement Type solely to isolate the payment policy, and must
 never be interpreted as production or cryptographic evidence. `--production`
 on the artifact checker does not close these application dependencies.

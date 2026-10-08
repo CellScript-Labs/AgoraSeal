@@ -1,0 +1,65 @@
+{
+  "schema": "agoraseal-ccc-node-rehearsal-v1",
+  "status": "passed",
+  "production_admitted": false,
+  "wallet": "unmodified CCC SignerCkbPrivateKey; public scalar 0x46 repeated; disposable chain only",
+  "deployment": {
+    "genesisHash": "0xb1308c5915db1ae2ed1511f83daf95224bbdef11e226d7054b5720b9efee90d5",
+    "codes": {
+      "sp1": {
+        "txHash": "0xf44275cb3f419682e8375ed719bad3ca8f54b6a39914a9ffd297f9089b72ea87",
+        "index": "0x0"
+      },
+      "stateContext": {
+        "txHash": "0xa674786bc712d3997eec6a37327bbe83af9aca7e98e15007c65dd6dd630f0440",
+        "index": "0x0"
+      },
+      "voteContext": {
+        "txHash": "0x0a230f9ba5040a47aa581909d53fc2146a0d9c2cb908ab2e7d07eebf2472e539",
+        "index": "0x0"
+      },
+      "vote": {
+        "txHash": "0xb878709fc6eb9ea28980095c3cfd5dcd7f310e5b11dc39c8596a068b38ace627",
+        "index": "0x0"
+      },
+      "proposal": {
+        "txHash": "0x4bab46f93d503191764cea0c8c873cf4ed383072cbc13d00d68d8ef0c6cc9d2d",
+        "index": "0x0"
+      },
+      "treasury": {
+        "txHash": "0x91f9e3d7b1891b0e267ba2fd86965fc7e98ecb611d9920ccdfd52620a62be48f",
+        "index": "0x0"
+      }
+    },
+    "walletDeps": [
+      {
+        "outPoint": {
+          "txHash": "0x9343826020c05fa36ed85c9d1c7d160f961f72368476ae040772bf8a4cb9d3ac",
+          "index": 0
+        },
+        "depType": "depGroup"
+      }
+    ]
+  },
+  "rows": [
+    {
+      "case": "recover exact canonical CCC proposal from completed proof attempt",
+      "tx": "0x1b79c994f08681e89cd0dcd08d30ae183b02a303938b2bb978a7d4691c878ea4",
+      "fundedByDaoTx": "0x7603f3c186d41d9c019bf1abb365f6db7b11ed1d7e3026fed55cebf167276213",
+      "proofAttemptPreserved": true
+    },
+    {
+      "case": "canonical-end removal/replacement rejected by SDK, normal node admission and context; preserve old proof and regenerate",
+      "old": "0xcff8413fcab72648280fae08f22f875d2ff3eb6c4a93aea6bd9129c5c54120f9",
+      "replacement": "0x2b3d5b4398c3b992427c93d364e03742e884835279f95c48f4d4b8dc67a9c0a5"
+    },
+    {
+      "case": "CCC permissionless PLONK settlement",
+      "tx": "0xf8a9c62fad5374c91969b23ef8ac026a1f46cf651093b3a77bf9879a67027019"
+    },
+    {
+      "case": "CCC signed payment spend",
+      "tx": "0x6f032275f03c73f49fea2659569ec1b419a9e838bf8f93fdadfb560b03947833"
+    }
+  ]
+}

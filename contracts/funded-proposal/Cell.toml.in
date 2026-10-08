@@ -1,0 +1,32 @@
+[package]
+name = "agoraseal-funded-proposal"
+version = "0.1.0"
+edition = "2026"
+
+[dependencies]
+
+[[deploy.ckb.trusted_external_verifiers]]
+schema = "cellscript-trusted-external-verifier-v1"
+name = "agoraseal-sp1-plonk-statement-v1"
+scope = "action:settle"
+operation = "spawn-wait"
+adapter = "hex4-v1"
+code_hash = "@VERIFIER_HASH@"
+hash_type = "data"
+source_identity = "AgoraSeal verifiers/sp1-plonk; fixed release VK and zk/program-vkey.txt"
+applicability = "Fixed GroupInput witness 0 output_type: 964 proof bytes then 277 public bytes; witness <= 2048 bytes; argv 32,0,0,0"
+trust_basis = "Pinned guest/key/ELF; real PLONK component VM evidence; complete lifecycle evidence and independent review pending"
+guarantees = ["Exact release PLONK circuit, recursion VK root, zero exit code and fixed AgoraSeal guest key", "Every public byte authenticated and bound to the supplied statement hash"]
+
+[[deploy.ckb.trusted_external_verifiers]]
+schema = "cellscript-trusted-external-verifier-v1"
+name = "agoraseal-unique-state-header-context-v1"
+scope = "action:settle"
+operation = "spawn-wait"
+adapter = "hex4-v1"
+code_hash = "@CONTEXT_HASH@"
+hash_type = "data"
+source_identity = "AgoraSeal verifiers/ckb-state-context; exact source and Cargo.lock"
+applicability = "Parent Script args exactly 32 bytes; argv 113,0,0,0; creation HeaderDep0 genesis; settlement HeaderDeps0/1/2 start/end/genesis"
+trust_basis = "CKB Type-ID uniqueness, real LOAD_HEADER coordinates; VM mutation evidence required; independent review pending"
+guarantees = ["Unique identifier equals first input and group output index at creation; no duplicate group inputs/outputs", "Creation binds actual genesis header number zero", "Settlement binds actual group input creation header, end header and genesis with exact hashes and numbers", "No application decision is delegated"]

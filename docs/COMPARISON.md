@@ -1,6 +1,6 @@
 # AgoraSeal (CellScript) vs ckb-vote-poc
 
-Reviewed 2026-10-07 against
+Upstream HEAD rechecked 2026-10-08 against
 [`ckb-vote-poc@c70421b`](https://github.com/XuJiandong/ckb-vote-poc/tree/c70421b45b930325a4dda558de12fcad5f8b7918)
 and CellScript `35bf983`. This is a source/design comparison, not an independent
 security audit or a head-to-head proving benchmark.
@@ -8,10 +8,11 @@ security audit or a head-to-head proving benchmark.
 **Conclusion: a significant overall advantage is not established.** The
 upstream PoC already has a guest, prover path, SP1 verifier integration,
 proposal/vote contracts, SDK and devnet tooling. AgoraSeal currently has actual
-CellScript vote/payment policies, native replay and an SP1 replay guest/prover;
-its full ZK settlement path is missing. The vote component has real parent-child
-VM tests. Guest/proof evidence is tracked separately in `zk/README.md`; it does
-not change the overall maturity or unmeasured ZK performance conclusion. CellScript's strongest prospective
+CellScript proposal/vote/payment/refund policies and a real fixed-guest PLONK
+path, with signed disposable-node pass/refund lifecycles. These concrete
+admission and state-boundary improvements do not establish overall production
+readiness. Resource, matched benchmark, independent review/SRS and hosted/public
+release gaps remain in PRODUCTION.md. CellScript's strongest prospective
 benefit is explicit, inspectable application policy and linked build evidence,
 not an automatic improvement in cryptography or proving speed.
 
@@ -24,13 +25,13 @@ that CellScript is intrinsically safer or that AgoraSeal has already solved it.
 
 | Dimension | ckb-vote-poc at the pinned revision | AgoraSeal now / intended |
 | --- | --- | --- |
-| Application contracts | Rust proposal and vote Scripts | Actual `.cell` vote and payment policies; proposal/settlement still required |
-| ZK path | SP1 guest, prover tooling and modified PLONK verifier present | Real release PLONK proof passes CellScript/CKB statement binding and mutation/recovery tests; proposal/chain admission still missing |
-| Public statement | Proposal, Script, start/end headers, YES/NO and pass | Fixed 277-byte codec adds explicit protocol/genesis/outpoint/record commitments; on-chain admission still missing |
+| Application contracts | Rust proposal and vote Scripts | Actual `.cell` unique creation, voting, real proof settlement and payment/refund |
+| ZK path | SP1 guest, prover tooling and modified PLONK verifier present | Real release PLONK complete state/chain/payout path, signed node and VM mutations; external cryptographic assumptions remain |
+| Public statement | Proposal, Script, start/end headers, YES/NO and pass | Fixed 277-byte codec explicitly binds protocol/genesis/input/outpoint/data/record commitments and actual creation association |
 | Policy audit artifacts | Rust source/tests/build artifacts | `.cell` policy, structured metadata, source map, lowering record and independent artifact checker; does not prove whole-app correctness |
-| Treasury | Proposal specifies receiver/amount; funds/provider integration must be assessed separately | Isolated earmarked payout component exists; full lifecycle missing |
-| Maturity | More complete implementation and SDK/devnet surface; remains a PoC | Earlier-stage; no production or security superiority claim |
-| Cost | No matched measurements performed here | Payment and PLONK-binding component costs recorded separately; no matched full-application comparison |
+| Treasury | Proposal specifies receiver/amount; funds/provider integration must be assessed separately | Single-use funded reserve, exact passed payment or failed refund; 603 CKB permanent receipt and no early cancellation |
+| Maturity | Has contracts, guest/prover, SDK/devnet surface; admission TODOs remain | Local complete policy/node closure and typed CCC client; independent review, maximal/matched cost and release gaps remain |
+| Cost | No matched measurements performed here | Node golden full settlement 66.31M/66.50M cycles, 2,501-byte tx; no matched full-application comparison or speedup claim |
 
 ## Policy differences are tradeoffs
 
@@ -73,21 +74,19 @@ cost. No speedup claim should use that number as an end-to-end baseline.
 
 ## Concrete dependencies before claiming an advantage
 
-1. Implement all application policies in `.cell`, with real VM mutation tests.
-2. Pin and execute the real voting guest/prover/verifier. CellScript's accepted
-   Groth16 transition profile is not an SP1 PLONK ABI; a new exact profile (or
-   a separately specified compatible proof construction) must cover statement
-   bytes, program/key identity, verifier artifact, bounds and failure handling.
-3. Close creation, canonical header association, unique settlement and payout,
-   including actual node/signature tests. An arbitrary claimed header or
-   `passed = 1` dependency must never substitute for admission.
+1. Retain the completed `.cell` policy/VM mutation closure and signed node
+   creation, vote, unique settlement, payment/refund and CCC reorg evidence.
+2. Independently review the exact SP1 PLONK integration, statement codec,
+   program/key/verifier identity, SRS linkage and failure bounds. A compiler
+   profile is not cryptographic certification of the application.
+3. Exercise maximal populated windows and close hosted release/public-network
+   custody requirements; local acceptance does not establish production safety.
 4. Measure identical workloads: proving time and memory, proof/witness bytes,
    CKB-VM valid and late-invalid cycles, code size, fees and ballot occupancy.
 5. Compare maintenance and review effort using equivalent rule changes and
    regression corpora. Extra compiler/checker/profile machinery is also a cost.
 
-Do not wait generically for every ZK issue to close. Ordinary governance and
-payment rules can be developed now. The immediate ZK blocker is exact proof
-integration and application evidence. Bounded multi-Cell proof support matters
-only if the chosen statement needs it; scanning many historical votes off-chain
-does not automatically require a multi-Cell on-chain proof statement.
+The exact proof integration and local application lifecycle are now exercised.
+Production and comparative acceptance still require the remaining evidence
+above. Scanning many historical votes off-chain does not automatically require
+a multi-Cell on-chain proof statement.

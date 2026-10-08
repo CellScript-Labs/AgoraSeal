@@ -70,7 +70,7 @@ async fn main() -> Result<()> {
     if args[0] == "test-guest" {
         // These mutations go straight into the guest. The native precheck above
         // must not substitute for evidence that the guest itself rejects them.
-        for case in 0..5 {
+        for case in 0..8 {
             let mut changed = frames.clone();
             match case {
                 0 => changed[0][40] ^= 1, // wrong anchored start
@@ -79,9 +79,14 @@ async fn main() -> Result<()> {
                 } // missing final block
                 2 => changed.push(vec![0]), // unconsumed extra input
                 3 => changed[1][0] ^= 1,  // corrupt Molecule block
-                _ => {
+                4 => {
                     changed[0].truncate(GuestInput::LEN - 1);
                 }
+                5 => changed[0].push(0), // oversize header rejected before guest allocation
+                6 => changed[1] = vec![0; agoraseal_protocol::Limits::default().block_bytes + 1],
+                _ => changed[0][104..108].copy_from_slice(
+                    &(agoraseal_protocol::Limits::default().blocks + 1).to_le_bytes(),
+                ),
             }
             let (rejected_public, rejected_report) =
                 client.execute(elf.clone(), stdin(&changed)).await?;
@@ -96,7 +101,9 @@ async fn main() -> Result<()> {
             );
             println!("guest mutation {case}: exit 1, no public statement");
         }
-        println!("five direct guest rejection cases passed");
+        println!(
+            "eight direct guest rejection cases passed, including allocation/frame/count bounds"
+        );
     }
     if args[0] == "prove-core" || plonk {
         println!(

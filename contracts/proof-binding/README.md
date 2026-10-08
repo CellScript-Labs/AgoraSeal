@@ -4,6 +4,8 @@ This component executes the actual `.cell` parent and a pinned SP1 PLONK child.
 It is not a proposal lifecycle or a treasury authorization contract. In
 particular, it does not yet authenticate the proposal's creation, chain
 anchors, immutable governance parameters or a one-time settlement transition.
+The implemented [funded proposal](../funded-proposal/README.md) handles those
+application checks; this component remains the smaller proof-binding regression.
 
 The parent requires one input and one output in its Type Script group. Output
 data must contain exactly 277 bytes. The `statement_hash: Hash` entry argument

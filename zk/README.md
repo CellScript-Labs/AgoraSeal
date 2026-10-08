@@ -113,7 +113,8 @@ does not revalidate consensus or historical Script execution.
 ```
 
 `test-guest` executes a synthetic four-block fixture and compares all public
-bytes to native replay, then sends five malformed inputs directly to the guest.
+bytes to native replay, then sends eight malformed inputs directly to the guest,
+including oversized header/frame and excessive block-count rejection.
 These cover a wrong anchor, missing block, extra frame, corrupt block and
 truncated input header. Host prechecks do not substitute for these guest tests.
 SP1 6.1's execution API can return `Ok` with a failed guest exit code. The host
@@ -136,7 +137,7 @@ in `docs/PRODUCTION.md`; these commands do not grant production admission.
 Observed on 2026-10-07: the pinned guest ELF SHA-256 is
 `e0f9eb4cae3f2b73be1d50f6f47fd507a165658dfdef26418ff576f82176cdb2`.
 The four-block fixture executes 222,561 SP1 instructions and emits 277 bytes
-identical to native replay. All five direct guest rejection cases pass with
+identical to native replay. All eight direct guest rejection cases pass with
 exit 1 and empty public output. This instruction count is not CKB cycles or
 a proof-generation timing benchmark.
 
@@ -216,5 +217,9 @@ The real-proof tests are no longer ignored. Fresh proving still writes ignored
 `target/guest-fixture` artifacts, selected by `verify-plonk`/`verify-ckb`.
 
 See [the observation and resource limits](../docs/evidence/PLONK-2026-10-08.md).
-Proposal/chain/treasury admission, unfinished-computation checkpointing,
-maximal workloads, security review and complete release closure remain pending.
+The separate funded application now supplies proposal/chain/treasury admission
+and signed disposable-node pass/refund evidence; its public proofs are in
+`tests/fixtures/node-lifecycle` and its complete policies in
+`contracts/funded-proposal` / `contracts/funded-treasury`. Those samples do not
+establish maximal workloads, unfinished-computation checkpointing, SRS/security
+review or complete release closure. See `docs/PRODUCTION.md`.

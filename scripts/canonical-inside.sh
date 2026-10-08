@@ -27,7 +27,7 @@ case "$mode" in
       --binaries agoraseal-guest --output-directory "$root/target/sp1"
     ;;
   ckb)
-    for component in ckb-context sp1-plonk; do
+    for component in ckb-context ckb-state-context sp1-plonk; do
       # ckb-alt-bn128 does not track its custom CLANG selector for Cargo cache
       # invalidation. Keep this reviewed assembler environment in a new target.
       export CARGO_TARGET_DIR="$root/.local/canonical-target/$component-linux-clang19"
@@ -40,9 +40,11 @@ case "$mode" in
     ;;
   rebuild-verifier)
     rebuild_root="$root/${2:?isolated source root required}"
-    cargo build --locked --offline \
-      --manifest-path "$rebuild_root/verifiers/sp1-plonk/Cargo.toml" \
-      --target riscv64imac-unknown-none-elf --release
+    for component in ckb-context ckb-state-context sp1-plonk; do
+      cargo build --locked --offline \
+        --manifest-path "$rebuild_root/verifiers/$component/Cargo.toml" \
+        --target riscv64imac-unknown-none-elf --release
+    done
     ;;
   *) echo 'usage: canonical-inside.sh guest|ckb|rebuild-verifier SOURCE_ROOT' >&2; exit 2 ;;
 esac

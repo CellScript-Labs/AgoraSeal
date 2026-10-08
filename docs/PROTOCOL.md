@@ -1,7 +1,8 @@
 # AgoraSeal voting protocol — development specification
 
-Status: application design and native executable core. This document defines
-the intended complete application, not a claim that missing layers exist.
+Status: funded `.cell` application and fixed-guest PLONK integration implemented;
+signed disposable-node pass/refund lifecycles verified. Resource, setup/review,
+network/custody and release admission remain in PRODUCTION.md.
 
 ## Sources and identity
 
@@ -100,12 +101,20 @@ The application must handle failed proposals, cancellation policy, stale input
 recovery and verifier lifecycle with explicit authorization. Ordinary funding
 allows complete testing before consensus-level treasury activation.
 
-The first implemented component is the CellScript payment Lock, described in
-[`contracts/treasury/README.md`](../contracts/treasury/README.md). It supports
-one earmarked reserve input and one exact recipient output, with an explicit
-fee ceiling. It reads an exactly typed settlement dependency. The settlement
-Type Script, unique escrow creation and full proof authentication are not yet
-implemented; synthetic settlement fixtures cannot authorize real funding.
+The implemented funded closure is
+[`contracts/funded-proposal`](../contracts/funded-proposal/README.md) plus
+[`contracts/funded-treasury`](../contracts/funded-treasury/README.md). Creation
+fixes the exact vote/DAO/funding Lock, actual genesis header, standard secp256k1
+recipient, first-funder refund and Type-ID. Settlement consumes one reserve and
+creates an immutable 465-byte receipt plus payment/refund, preserving all 188
+proposal bytes and authenticating the actual input/outpoint/data/creation/window
+through the fixed PLONK and generic header children. Exact successful amount or
+failed refund and at most 100,000 shannons in fees are enforced in `.cell`.
+
+The funded policy reserves 603 CKB permanently for its receipt and restricts
+duration to 1..16 blocks. It has no early cancellation or receipt reclamation.
+The older standalone treasury policy remains an isolated regression component;
+its synthetic settlement dependency is never the funded application's authority.
 
 ## Bounds and decisions still requiring evidence
 
@@ -116,7 +125,10 @@ These are development ceilings, not measured production throughput claims.
 Streaming and, if measurements demand it, recursive chunk aggregation must
 preserve complete range and deposit-state continuity across boundaries.
 
-Proof system/version, actual guest/verifier costs, setup disposition, maximum
-production window and deployment custody require executable decisions. The
-existing SP1 prototype is the first candidate to evaluate; no production SP1
-claim is made before program/verifier compatibility and real CKB-VM costs pass.
+SP1 6.1.0, the exact admitted guest/key, release PLONK circuit and CKB port are
+pinned and exercised by real proofs. Node golden full settlements reexecute at
+66,308,424 passed / 66,503,507 failed cycles, each 2,501 bytes. Those are measured
+small fixtures, not maximal populated-window budgets. Setup disposition,
+maximal production workload, public deployment custody and release admission
+remain unresolved. The fixed guest's broad development ceilings must not be
+presented as measured production capacity.

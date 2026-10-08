@@ -1,10 +1,12 @@
-name: CellScript and protocol components (template, not active)
+name: Funded CellScript application (template, not active)
 on: [push, pull_request]
 permissions:
   contents: read
 jobs:
   native:
     runs-on: ubuntu-latest
+    env:
+      CARGO_BUILD_JOBS: 2
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
@@ -16,6 +18,14 @@ jobs:
           path: CellScript
       - name: Install pinned toolchain
         run: rustup toolchain install 1.97.1 --profile minimal --component rustfmt,clippy --target riscv64imac-unknown-none-elf
-      - name: CellScript, VM, native and no_std verification
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: nervosnetwork/ckb-sdk-rust
+          ref: 1fbf3d4c9b35ef90bdb9e6621a8d26edde6325ce # v5.1.0; compiler workspace path dependency
+          path: ckb-sdk-rust
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 26.5.1
+      - name: CellScript, real proofs, CKB-VM, CCC, no_std and fresh artifact reconstruction
         working-directory: agoraseal
         run: ./scripts/gate.sh ci
